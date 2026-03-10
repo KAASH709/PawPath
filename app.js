@@ -80,35 +80,31 @@ function goScreen(id) {
   const next = document.getElementById(id);
   if (!next || prev === next) return;
 
-  // Determine direction: forward = slide from right, backward = slide from left
   const prevDepth = SCREEN_DEPTH[prev ? prev.id : null] ?? 0;
   const nextDepth = SCREEN_DEPTH[id] ?? 0;
-  const isForward = nextDepth >= prevDepth;
+  const isBackward = nextDepth < prevDepth;
 
-  if (prev) {
-    prev.classList.remove('active');
-    // Exit: forward → slide left; backward → slide right
-    const exitClass = isForward ? 'slide-out-left' : 'slide-out-right';
-    prev.classList.add(exitClass);
-    setTimeout(() => prev.classList.remove(exitClass), 380);
-  }
+  // ── Step 1: Position incoming screen at its START point, with no transition ──
+  next.style.transition = 'none';
+  next.style.opacity = '0';
+  next.style.transform = isBackward ? 'translateX(-40px)' : 'translateX(40px)';
 
-  // Set starting position for the incoming screen before making it active
-  if (isForward) {
-    // Comes from the right — default .screen transform already positions it there
-    next.classList.remove('slide-from-left');
-  } else {
-    // Comes from the left
-    next.classList.add('slide-from-left');
-    // Force a reflow so the class is applied before the transition starts
-    void next.offsetWidth;
-  }
+  // ── Step 2: Force browser to commit the above style (triggers layout) ──
+  void next.offsetWidth;
 
+  // ── Step 3: Re-enable transitions, clear inline overrides, make it active ──
+  //    Browser sees ONE combined style delta from the committed start → translateX(0)
+  next.style.transition = '';
+  next.style.opacity = '';
+  next.style.transform = '';
   next.classList.add('active');
 
-  // Once active remove the helper class (transition handles the rest)
-  if (!isForward) {
-    requestAnimationFrame(() => next.classList.remove('slide-from-left'));
+  // ── Step 4: Animate outgoing screen in the opposite direction ──
+  if (prev) {
+    prev.classList.remove('active');
+    const exitClass = isBackward ? 'slide-out-right' : 'slide-out-left';
+    prev.classList.add(exitClass);
+    setTimeout(() => prev.classList.remove(exitClass), 400);
   }
 
   // Scroll inner areas back to top

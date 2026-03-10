@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>PawPath – SPCA Digital Adoption</title>
+  <meta name="description" content="PawPath by SPCA — the fully digital pet adoption platform. Browse, apply and adopt your perfect companion from the comfort of home." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     APP SHELL  — single page, screens toggled via JS
+════════════════════════════════════════════════ -->
+<div id="app">
+
+  <!-- ░░░░░  SPLASH / HOME SCREEN  ░░░░░ -->
+  <section class="screen active" id="screen-home">
+    <div class="home-hero">
+      <div class="home-blob blob1"></div>
+      <div class="home-blob blob2"></div>
+      <div class="home-top-bar">
+        <div class="logo-lockup">
+          <div class="logo-paw">🐾</div>
+          <div>
+            <div class="logo-name">PawPath</div>
+            <div class="logo-sub">by SPCA Singapore</div>
+          </div>
+        </div>
+        <button class="icon-btn" id="btn-notifications">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="notif-dot"></span>
+        </button>
+      </div>
+
+      <div class="home-greeting">
+        <p class="greeting-text">Hello, Adopter 👋</p>
+        <h1 class="home-headline">Find Your <span class="accent-text">Perfect</span><br/>Companion</h1>
+        <p class="home-sub">Over 120 pets waiting for a loving home.</p>
+      </div>
+
+      <div class="search-bar" id="home-search" onclick="goScreen('screen-browse')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <span class="search-placeholder">Search by breed, name…</span>
+      </div>
+
+      <!-- Quick filter chips -->
+      <div class="filter-chips-row">
+        <button class="chip chip-active" onclick="filterAndBrowse('all')">All Pets</button>
+        <button class="chip" onclick="filterAndBrowse('dog')">🐶 Dogs</button>
+        <button class="chip" onclick="filterAndBrowse('cat')">🐱 Cats</button>
+        <button class="chip" onclick="filterAndBrowse('small')">🐰 Small</button>
+      </div>
+
+      <!-- Journey progress card -->
+      <div class="journey-card">
+        <div class="journey-card-header">
+          <span class="jc-icon">📋</span>
+          <div>
+            <div class="jc-title">My Adoption Journey</div>
+            <div class="jc-sub">Step 2 of 7 — Application Submitted</div>
+          </div>
+          <div class="jc-badge">Active</div>
+        </div>
+        <div class="journey-steps">
+          <div class="js-step done" title="Browse">1</div>
+          <div class="js-line done"></div>
+          <div class="js-step done" title="Visit">2</div>
+          <div class="js-line"></div>
+          <div class="js-step current" title="Apply">3</div>
+          <div class="js-line"></div>
+          <div class="js-step" title="Interview">4</div>
+          <div class="js-line"></div>
+          <div class="js-step" title="Home Check">5</div>
+          <div class="js-line"></div>
+          <div class="js-step" title="Approval">6</div>
+          <div class="js-line"></div>
+          <div class="js-step" title="Post-Adoption">7</div>
+        </div>
+      </div>
+
+      <!-- Featured pets -->
+      <div class="section-header">
+        <h2 class="section-title">Featured Pets</h2>
+        <button class="see-all" onclick="goScreen('screen-browse')">See All</button>
+      </div>
+
+      <div class="pet-cards-row">
+        <div class="pet-card" onclick="viewPet('buddy')">
+          <div class="pet-card-img-wrap">
+            <img src="assets/buddy.jpg" alt="Buddy the Golden Retriever" class="pet-card-img" />
+            <button class="heart-btn" id="heart-buddy" onclick="event.stopPropagation();toggleHeart('buddy')">♡</button>
+            <div class="pet-badge">Available</div>
+          </div>
+          <div class="pet-card-info">
+            <div class="pet-card-name">Buddy</div>
+            <div class="pet-card-meta">🐶 Golden Retriever · 2 yrs</div>
+          </div>
+        </div>
+        <div class="pet-card" onclick="viewPet('luna')">
+          <div class="pet-card-img-wrap">
+            <img src="assets/luna.jpg" alt="Luna the Tabby Cat" class="pet-card-img" />
+            <button class="heart-btn" id="heart-luna" onclick="event.stopPropagation();toggleHeart('luna')">♡</button>
+            <div class="pet-badge">Available</div>
+          </div>
+          <div class="pet-card-info">
+            <div class="pet-card-name">Luna</div>
+            <div class="pet-card-meta">🐱 Tabby · 1 yr</div>
+          </div>
+        </div>
+        <div class="pet-card" onclick="viewPet('max')">
+          <div class="pet-card-img-wrap">
+            <img src="assets/max.jpg" alt="Max the Black Lab" class="pet-card-img" />
+            <button class="heart-btn" id="heart-max" onclick="event.stopPropagation();toggleHeart('max')">♡</button>
+            <div class="pet-badge urgent">Urgent</div>
+          </div>
+          <div class="pet-card-info">
+            <div class="pet-card-name">Max</div>
+            <div class="pet-card-meta">🐶 Labrador · 3 yrs</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+      <button class="nav-btn active" onclick="goScreen('screen-home')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        <span>Home</span>
+      </button>
+      <button class="nav-btn" onclick="goScreen('screen-browse')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <span>Browse</span>
+      </button>
+      <button class="nav-btn" onclick="goScreen('screen-journey')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <span>Journey</span>
+      </button>
+      <button class="nav-btn" onclick="goScreen('screen-profile')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Profile</span>
+      </button>
+    </nav>
+  </section>
+
+
+  <!-- ░░░░░  BROWSE SCREEN  ░░░░░ -->
+  <section class="screen screen-browse-layout" id="screen-browse">
+    <div class="screen-header">
+      <button class="back-btn" onclick="goScreen('screen-home')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      </button>
+      <h2 class="screen-title">Browse Pets</h2>
+      <button class="icon-btn" id="btn-filter-panel" onclick="toggleFilterPanel()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+      </button>
+    </div>
+
+    <!-- Filter bar — always visible, never scrolls away -->
+    <div class="browse-filters">
+      <button class="chip chip-active" data-filter="all" onclick="setFilter(this,'all')">All</button>
+      <button class="chip" data-filter="dog" onclick="setFilter(this,'dog')">🐶 Dogs</button>
+      <button class="chip" data-filter="cat" onclick="setFilter(this,'cat')">🐱 Cats</button>
+      <button class="chip" data-filter="small" onclick="setFilter(this,'small')">🐰 Small</button>
+    </div>
+
+    <!-- Pet grid — only this inner div scrolls -->
+    <div class="browse-scroll-area">
+      <div class="pet-grid" id="pet-grid">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- Bottom Nav — pinned to bottom, never moves -->
+    <nav class="bottom-nav">
+      <button class="nav-btn" onclick="goScreen('screen-home')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        <span>Home</span>
+      </button>
+      <button class="nav-btn active" onclick="goScreen('screen-browse')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <span>Browse</span>
+      </button>
+      <button class="nav-btn" onclick="goScreen('screen-journey')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <span>Journey</span>
+      </button>
+      <button class="nav-btn" onclick="goScreen('screen-profile')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Profile</span>
+      </button>
+    </nav>
+  </section>
+
+
+  <!-- ░░░░░  PET DETAIL SCREEN  ░░░░░ -->
+  <section class="screen" id="screen-pet-detail">
+    <div class="detail-hero-wrap">
+      <img id="detail-img" src="" alt="" class="detail-hero-img" />
+      <div class="detail-img-overlay"></div>
+      <button class="back-btn floating-back" onclick="goScreen('screen-browse')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      </button>
+      <button class="heart-btn floating-heart" id="detail-heart" onclick="toggleHeart(currentPet)">♡</button>
+    </div>
+
+    <div class="detail-body">
+      <div class="detail-name-row">
+        <div>
+          <h1 class="detail-name" id="detail-name">Buddy</h1>
+          <div class="detail-sub" id="detail-sub">Golden Retriever · Male · 2 yrs</div>
+        </div>
+        <div class="detail-status-badge" id="detail-status">Available</div>
+      </div>
+
+      <!-- Tags -->
+      <div class="detail-tags" id="detail-tags"></div>
+
+      <!-- Quick stats -->
+      <div class="quick-stats">
+        <div class="qs-item">
+          <div class="qs-icon">🎂</div>
+          <div class="qs-val" id="qs-age">2 years</div>
+          <div class="qs-label">Age</div>
+        </div>
+        <div class="qs-item">
+          <div class="qs-icon">⚖️</div>
+          <div class="qs-val" id="qs-weight">28 kg</div>
+          <div class="qs-label">Weight</div>
+        </div>
+        <div class="qs-item">
+          <div class="qs-icon">💉</div>
+          <div class="qs-val" id="qs-vaccinated">Yes</div>
+          <div class="qs-label">Vaccinated</div>
+        </div>
+        <div class="qs-item">
+          <div class="qs-icon">✂️</div>
+          <div class="qs-val" id="qs-neutered">Yes</div>
+          <div class="qs-label">Neutered</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="detail-tabs">
+        <button class="dtab active" onclick="switchTab('about')">About</button>
+        <button class="dtab" onclick="switchTab('medical')">Medical</button>
+        <button class="dtab" onclick="switchTab('gallery')">Gallery</button>
+      </div>
+
+      <div id="tab-about" class="tab-panel">
+        <p class="detail-desc" id="detail-desc">A gentle and loving companion who enjoys outdoor walks and cuddles. Great with kids and other pets. Buddy is housebroken and responds well to basic commands.</p>
+        <div class="detail-section-title">Temperament</div>
+        <div class="detail-tags" id="detail-tags-temp"></div>
+      </div>
+      <div id="tab-medical" class="tab-panel hidden">
+        <div class="med-record">
+          <div class="mr-icon">💉</div>
+          <div><div class="mr-title">Vaccinations</div><div class="mr-val">Up to date (Rabies, DHPP)</div></div>
+        </div>
+        <div class="med-record">
+          <div class="mr-icon">✂️</div>
+          <div><div class="mr-title">Spay / Neuter</div><div class="mr-val" id="mr-neuter">Neutered — Jan 2024</div></div>
+        </div>
+        <div class="med-record">
+          <div class="mr-icon">🦷</div>
+          <div><div class="mr-title">Dental</div><div class="mr-val">Cleaned — Dec 2024</div></div>
+        </div>
+        <div class="med-record">
+          <div class="mr-icon">🩺</div>
+          <div><div class="mr-title">Last Checkup</div><div class="mr-val">Feb 2025 — Healthy</div></div>
+        </div>
+      </div>
+      <div id="tab-gallery" class="tab-panel hidden">
+        <div class="gallery-grid">
+          <img id="gallery-img-main" src="" alt="" class="gallery-img gallery-img-lg" />
+          <img src="assets/buddy.jpg" alt="" class="gallery-img" />
+          <img src="assets/luna.jpg" alt="" class="gallery-img" />
+        </div>
+      </div>
+
+      <!-- CTA Buttons -->
+      <div class="detail-ctas">
+        <button class="btn-secondary" onclick="goScreen('screen-book-visit')">📅 Book a Visit</button>
+        <button class="btn-primary" onclick="goScreen('screen-apply')">Apply to Adopt</button>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ░░░░░  BOOK VISIT SCREEN  ░░░░░ -->
+  <section class="screen" id="screen-book-visit">
+    <div class="screen-header">
+      <button class="back-btn" onclick="goScreen('screen-pet-detail')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      </button>
+      <h2 class="screen-title">Book a Visit</h2>
+      <div></div>
+    </div>
+    <div class="screen-body">
+      <div class="info-card">
+        <div class="ic-icon">🏠</div>
+        <div>
+          <div class="ic-title">SPCA Gallery Visit</div>
+          <div class="ic-sub">140 Moulmein Rd, Singapore 308426</div>
+        </div>
+      </div>
+
+      <div class="form-section-title">Choose a Date</div>
+      <div class="calendar-mini" id="calendar-mini">
+        <!-- populated by JS -->
+      </div>
+
+      <div class="form-section-title">Available Time Slots</div>
+      <div class="time-slots" id="time-slots">
+        <button class="time-slot" onclick="selectSlot(this)">10:00 AM</button>
+        <button class="time-slot" onclick="selectSlot(this)">11:00 AM</button>
+        <button class="time-slot" onclick="selectSlot(this)">12:00 PM</button>
+        <button class="time-slot" onclick="selectSlot(this)">2:00 PM</button>
+        <button class="time-slot" onclick="selectSlot(this)">3:00 PM</button>
+        <button class="time-slot" onclick="selectSlot(this)">4:00 PM</button>
+      </div>
+
+      <div class="form-section-title">Number of Visitors</div>
+      <div class="stepper-row">
+        <button class="stepper-btn" onclick="changeVisitors(-1)">−</button>
+        <span class="stepper-val" id="visitor-count">1</span>
+        <button class="stepper-btn" onclick="changeVisitors(1)">+</button>
+      </div>
+
+      <div class="form-section-title">Special Requests</div>
+      <textarea class="form-input form-textarea" placeholder="Any special requirements or questions…"></textarea>
+
+      <button class="btn-primary btn-full mt-16" onclick="confirmVisit()">Confirm Booking</button>
+    </div>
+  </section>
+
+
+  <!-- ░░░░░  APPLICATION FORM SCREEN  ░░░░░ -->
+  <section class="screen" id="screen-apply">
+    <div class="screen-header">
+      <button class="back-btn" onclick="goScreen('screen-pet-detail')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      </button>
+      <h2 class="screen-title">Adoption Application</h2>
+      <div></div>
+    </div>
+    <div class="screen-body">
+      <!-- Multi-step form progress -->
+      <div class="form-progress">
+        <div class="fp-step fp-active" id="fp1">Personal</div>
+        <div class="fp-line"></div>
+        <div class="fp-step" id="fp2">Living</div>
+        <div class="fp-line"></div>
+        <div class="fp-step" id="fp3">Lifestyle</div>
+        <div class="fp-line"></div>
+        <div class="fp-step" id="fp4">Documents</div>
+      </div>
+
+      <!-- Step 1: Personal Info -->
+      <div class="form-step" id="form-step-1">
+        <h3 class="form-step-title">Personal Information</h3>
+        <label class="form-label">Full Name (as per NRIC)</label>
+        <input type="text" class="form-input" placeholder="e.g. Sarah Tan Wei Ling" />
+        <label class="form-label">NRIC Number</label>
+        <input type="text" class="form-input" placeholder="e.g. S1234567A" />
+        <label class="form-label">Email Address</label>
+        <input type="email" class="form-input" placeholder="sarah@email.com" />
+        <label class="form-label">Mobile Number</label>
+        <input type="tel" class="form-input" placeholder="+65 9xxx xxxx" />
+        <label class="form-label">Date of Birth</label>
+        <input type="date" class="form-input" />
+        <div class="form-nav">
+          <div></div>
+          <button class="btn-primary" onclick="nextStep(1)">Next →</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Living Situation -->
+      <div class="form-step hidden" id="form-step-2">
+        <h3 class="form-step-title">Living Situation</h3>
+        <label class="form-label">Housing Type</label>
+        <div class="option-group" id="housing-type">
+          <button class="option-btn" onclick="selectOption(this,'housing-type')">HDB Flat</button>
+          <button class="option-btn" onclick="selectOption(this,'housing-type')">Condo/Apt</button>
+          <button class="option-btn" onclick="selectOption(this,'housing-type')">Landed</button>
+          <button class="option-btn" onclick="selectOption(this,'housing-type')">Other</button>
+        </div>
+        <label class="form-label">Do you own or rent?</label>
+        <div class="option-group" id="own-rent">
+          <button class="option-btn" onclick="selectOption(this,'own-rent')">Own</button>
+          <button class="option-btn" onclick="selectOption(this,'own-rent')">Rent</button>
+        </div>
+        <label class="form-label">Number of Household Members</label>
+        <input type="number" class="form-input" placeholder="e.g. 3" min="1" />
+        <label class="form-label">Are there other pets currently?</label>
+        <div class="option-group" id="other-pets">
+          <button class="option-btn" onclick="selectOption(this,'other-pets')">Yes</button>
+          <button class="option-btn" onclick="selectOption(this,'other-pets')">No</button>
+        </div>
+        <div class="form-nav">
+          <button class="btn-ghost" onclick="prevStep(2)">← Back</button>
+          <button class="btn-primary" onclick="nextStep(2)">Next →</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Lifestyle -->
+      <div class="form-step hidden" id="form-step-3">
+        <h3 class="form-step-title">Lifestyle & Experience</h3>
+        <label class="form-label">Previous pet experience?</label>
+        <div class="option-group" id="experience">
+          <button class="option-btn" onclick="selectOption(this,'experience')">None</button>
+          <button class="option-btn" onclick="selectOption(this,'experience')">Some</button>
+          <button class="option-btn" onclick="selectOption(this,'experience')">Experienced</button>
+        </div>
+        <label class="form-label">Average hours at home per day</label>
+        <div class="option-group" id="hours-home">
+          <button class="option-btn" onclick="selectOption(this,'hours-home')">0–4 hrs</button>
+          <button class="option-btn" onclick="selectOption(this,'hours-home')">4–8 hrs</button>
+          <button class="option-btn" onclick="selectOption(this,'hours-home')">8–12 hrs</button>
+          <button class="option-btn" onclick="selectOption(this,'hours-home')">12+ hrs</button>
+        </div>
+        <label class="form-label">Why do you want to adopt?</label>
+        <textarea class="form-input form-textarea" placeholder="Tell us about your reasons for adopting and your plans for caring for the pet…"></textarea>
+        <div class="form-nav">
+          <button class="btn-ghost" onclick="prevStep(3)">← Back</button>
+          <button class="btn-primary" onclick="nextStep(3)">Next →</button>
+        </div>
+      </div>
+
+      <!-- Step 4: Documents -->
+      <div class="form-step hidden" id="form-step-4">
+        <h3 class="form-step-title">Upload Documents</h3>
+        <p class="form-helper">Please upload clear copies of the required documents.</p>
+
+        <div class="upload-card" onclick="simulateUpload('nric')">
+          <div class="uc-icon" id="uc-nric-icon">📄</div>
+          <div>
+            <div class="uc-title">NRIC (Front &amp; Back)</div>
+            <div class="uc-sub" id="uc-nric-sub">Tap to upload</div>
+          </div>
+          <div class="uc-status" id="uc-nric-status"></div>
+        </div>
+
+        <div class="upload-card" onclick="simulateUpload('proof')">
+          <div class="uc-icon" id="uc-proof-icon">🏠</div>
+          <div>
+            <div class="uc-title">Proof of Address</div>
+            <div class="uc-sub" id="uc-proof-sub">Tap to upload</div>
+          </div>
+          <div class="uc-status" id="uc-proof-status"></div>
+        </div>
+
+        <div class="upload-card" onclick="simulateUpload('landlord')">
+          <div class="uc-icon" id="uc-landlord-icon">📝</div>
+          <div>
+            <div class="uc-title">Landlord Approval (if renting)</div>
+            <div class="uc-sub" id="uc-landlord-sub">Tap to upload</div>
+          </div>
+          <div class="uc-status" id="uc-landlord-status"></div>
+        </div>
+
+        <div class="form-nav">
+          <button class="btn-ghost" onclick="prevStep(4)">← Back</button>
+          <button class="btn-primary" onclick="submitApplication()">Submit Application</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ░░░░░  JOURNEY TRACKER SCREEN  ░░░░░ -->
+  <section class="screen" id="screen-journey">
+    <div class="screen-header-plain">
+      <h2 class="screen-title-plain">My Journey</h2>
+    </div>
+    <div class="screen-body">
+      <!-- Pet chip -->
+      <div class="journey-pet-chip">
+        <img src="assets/buddy.jpg" alt="Buddy" class="jpc-img" />
+        <div>
+          <div class="jpc-name">Applying for Buddy</div>
+          <div class="jpc-sub">Golden Retriever · Application #SPC-2025-0041</div>
+        </div>
+      </div>
+
+      <!-- Timeline -->
+      <div class="timeline">
+        <div class="tl-item tl-done">
+          <div class="tl-dot done"><svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M20 6 9 17l-5-5"/></svg></div>
+          <div class="tl-content">
+            <div class="tl-title">Browse &amp; Shortlist</div>
+            <div class="tl-date">10 Mar 2025</div>
+            <div class="tl-desc">You saved Buddy to your wishlist and started browsing.</div>
+          </div>
+        </div>
+        <div class="tl-item tl-done">
+          <div class="tl-dot done"><svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M20 6 9 17l-5-5"/></svg></div>
+          <div class="tl-content">
+            <div class="tl-title">Gallery Visit Booked</div>
+            <div class="tl-date">12 Mar 2025 · 2:00 PM</div>
+            <div class="tl-desc">You visited SPCA and met Buddy in person.</div>
+          </div>
+        </div>
+        <div class="tl-item tl-current">
+          <div class="tl-dot current">3</div>
+          <div class="tl-content">
+            <div class="tl-title">Application Submitted</div>
+            <div class="tl-date">Under Review</div>
+            <div class="tl-desc">Your application is being reviewed by our team. Usually 2–3 business days.</div>
+            <div class="tl-status-bar">
+              <div class="tl-sb-fill" style="width:60%"></div>
+            </div>
+          </div>
+        </div>
+        <div class="tl-item tl-pending">
+          <div class="tl-dot pending">4</div>
+          <div class="tl-content">
+            <div class="tl-title">Virtual Interview</div>
+            <div class="tl-date">Pending</div>
+            <div class="tl-desc">Schedule a video interview with our adoption officer.</div>
+            <button class="tl-cta" onclick="goScreen('screen-interview')">Schedule Now</button>
+          </div>
+        </div>
+        <div class="tl-item tl-pending">
+          <div class="tl-dot pending">5</div>
+          <div class="tl-content">
+            <div class="tl-title">Home Environment Check</div>
+            <div class="tl-date">Pending</div>
+            <div class="tl-desc">Book a home visit appointment with our officer.</div>
+            <button class="tl-cta" onclick="goScreen('screen-home-check')">Book Visit</button>
+          </div>
+        </div>
+        <div class="tl-item tl-pending">
+          <div class="tl-dot pending">6</div>
+          <div class="tl-content">
+            <div class="tl-title">Final Approval &amp; Payment</div>
+            <div class="tl-date">Pending</div>
+            <div class="tl-desc">Receive your digital approval and complete adoption payment.</div>
+          </div>
+        </div>
+        <div class="tl-item tl-pending">
+          <div class="tl-dot pending">7</div>
+          <div class="tl-content">
+            <div class="tl-title">Post-Adoption Support</div>
+            <div class="tl-date">Pending</div>
+            <div class="tl-desc">Access pet care resources and stay connected with SPCA.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="bottom-nav">
+      <button class="nav-btn" onclick="goScreen('screen-home')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        <span>Home</span>
+      </button>
+      <button class="nav-btn" onclick="goScreen('screen-browse')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <span>Browse</span>
+      </button>
+      <button class="nav-btn active" onclick="goScreen('screen-journey')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <span>Journey</span>
+      </button>
+      <button class="nav-btn" onclick="goScreen('screen-profile')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Profile</span>
+      </button>
+    </nav>
+  </section>
+
+
+  <!-- ░░░░░  INTERVIEW SCREEN  ░░░░░ -->
+  <section class="screen" id="screen-interview">
+    <div class="screen-header">
+      <button class="back-btn" onclick="goScreen('screen-journey')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      </button>
+      <h2 class="screen-title">Schedule Interview</h2>
+      <div></div>
+    </div>
+    <div class="screen-body">
+      <div class="info-card">
+        <div class="ic-icon">🎥</div>
+        <div>
+          <div class="ic-title">Virtual Interview</div>
+          <div class="ic-sub">30–45 min video call with our adoption officer. Conducted via in-app video call.</div>
+        </div>
+      </div>
+
+      <div class="form-section-title">Choose a Date</div>
+      <div class="calendar-mini" id="calendar-interview"></div>
+
+      <div class="form-section-title">Available Time Slots</div>
+      <div class="time-slots">
+        <button class="time-slot" onclick="selectSlot(this)">9:00 AM</button>
+        <button class="time-slot" onclick="selectSlot(this)">10:30 AM</button>
+        <button class="time-slot" onclick="selectSlot(this)">1:00 PM</button>
+        <button class="time-slot time-slot-unavail">2:30 PM</button>
+        <button class="time-slot" onclick="selectSlot(this)">4:00 PM</button>
+        <button class="time-slot" onclick="selectSlot(this)">5:30 PM</button>
+      </div>
+
+      <div class="info-card mt-16">
+        <div class="ic-icon">💡</div>
+        <div>
+          <div class="ic-title">Preparation Tips</div>
+          <div class="ic-sub">Have your NRIC ready. Be prepared to discuss your daily routine, living environment, and experience with pets.</div>
+        </div>
+      </div>
+
+      <button class="btn-primary btn-full mt-16" onclick="confirmInterview()">Confirm Interview</button>
+    </div>
+  </section>
+
+
+  <!-- ░░░░░  HOME ENVIRONMENT CHECK SCREEN  ░░░░░ -->
+  <section class="screen" id="screen-home-check">
+    <div class="screen-header">
+      <button class="back-btn" onclick="goScreen('screen-journey')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      </button>
+      <h2 class="screen-title">Home Environment Check</h2>
+      <div></div>
+    </div>
+    <div class="screen-body">
+      <div class="info-card">
+        <div class="ic-icon">🏡</div>
+        <div>
+          <div class="ic-title">Home Visit by SPCA Officer</div>
+          <div class="ic-sub">Our officer will visit your home to ensure a safe & loving environment for your new pet.</div>
+        </div>
+      </div>
+
+      <div class="form-section-title">Your Address</div>
+      <input type="text" class="form-input" placeholder="Block / Street Name" />
+      <input type="text" class="form-input mt-8" placeholder="Unit Number" />
+      <input type="text" class="form-input mt-8" placeholder="Postal Code" />
+
+      <div class="form-section-title">Preferred Visit Date</div>
+      <div class="calendar-mini" id="calendar-homecheck"></div>
+
+      <div class="form-section-title">Preferred Time</div>
+      <div class="time-slots">
+        <button class="time-slot" onclick="selectSlot(this)">10:00 AM</button>
+        <button class="time-slot" onclick="selectSlot(this)">1:00 PM</button>
+        <button class="time-slot" onclick="selectSlot(this)">3:00 PM</button>
+        <button class="time-slot" onclick="selectSlot(this)">5:00 PM</button>
+      </div>
+
+      <div class="checkbox-row">
+        <input type="checkbox" id="chk-reminder" checked />
+        <label for="chk-reminder" class="checkbox-label">Send reminder 24 hrs before visit</label>
+      </div>
+
+      <div class="checkbox-row">
+        <input type="checkbox" id="chk-consent" />
+        <label for="chk-consent" class="checkbox-label">I consent to a home inspection by SPCA staff</label>
+      </div>
+
+      <button class="btn-primary btn-full mt-16" onclick="confirmHomeCheck()">Book Home Visit</button>
+    </div>
+  </section>
+
+
+  <!-- ░░░░░  FINAL APPROVAL / PAYMENT SCREEN  ░░░░░ -->
+  <section class="screen" id="screen-approval">
+    <div class="screen-body" style="padding-top:24px;">
+      <div class="approval-hero">
+        <div class="approval-confetti">🎉</div>
+        <h1 class="approval-title">Congratulations!</h1>
+        <p class="approval-sub">Your application has been <strong>approved</strong>.<br/>You're one step away from taking Buddy home!</p>
+      </div>
+
+      <div class="approval-card">
+        <div class="ac-row"><span>Pet</span><strong>Buddy (Golden Retriever)</strong></div>
+        <div class="ac-row"><span>Adoption Fee</span><strong>S$150.00</strong></div>
+        <div class="ac-row"><span>Microchip</span><strong>S$30.00</strong></div>
+        <div class="ac-row"><span>Starter Kit</span><strong>S$25.00</strong></div>
+        <div class="ac-divider"></div>
+        <div class="ac-row ac-total"><span>Total</span><strong>S$205.00</strong></div>
+      </div>
+
+      <div class="form-section-title">Payment Method</div>
+      <div class="payment-options">
+        <div class="pay-opt pay-opt-active" onclick="selectPay(this)">
+          <div class="pay-icon">💳</div>
+          <span>Card</span>
+        </div>
+        <div class="pay-opt" onclick="selectPay(this)">
+          <div class="pay-icon">📱</div>
+          <span>PayNow</span>
+        </div>
+        <div class="pay-opt" onclick="selectPay(this)">
+          <div class="pay-icon">🏦</div>
+          <span>Bank</span>
+        </div>
+      </div>
+
+      <div id="card-form">
+        <label class="form-label">Card Number</label>
+        <input type="text" class="form-input" placeholder="•••• •••• •••• ••••" maxlength="19" />
+        <div class="card-row">
+          <div style="flex:1">
+            <label class="form-label">Expiry</label>
+            <input type="text" class="form-input" placeholder="MM/YY" />
+          </div>
+          <div style="flex:1">
+            <label class="form-label">CVV</label>
+            <input type="text" class="form-input" placeholder="•••" maxlength="3" />
+          </div>
+        </div>
+        <label class="form-label">Name on Card</label>
+        <input type="text" class="form-input" placeholder="Sarah Tan" />
+      </div>
+
+      <button class="btn-primary btn-full mt-16" onclick="processPayment()">Pay S$205.00 →</button>
+      <p class="secure-label">🔒 Secured by 256-bit SSL encryption</p>
+    </div>
+  </section>
+
+
+  <!-- ░░░░░  POST ADOPTION SCREEN  ░░░░░ -->
+  <section class="screen" id="screen-post-adoption">
+    <div class="screen-body" style="padding-top:24px;">
+
+      <div class="post-hero">
+        <div class="post-hero-bg"></div>
+        <img src="assets/buddy.jpg" alt="Buddy" class="post-pet-img" />
+        <h1 class="post-title">Welcome Home,<br/>Buddy! 🐾</h1>
+        <p class="post-sub">You're now a proud paw parent. Here's your adoption summary.</p>
+      </div>
+
+      <div class="post-docs-row">
+        <div class="doc-card" onclick="downloadDoc('agreement')">
+          <div class="dc-icon">📜</div>
+          <div class="dc-title">Adoption Agreement</div>
+          <div class="dc-sub">Download PDF</div>
+        </div>
+        <div class="doc-card" onclick="downloadDoc('cert')">
+          <div class="dc-icon">🏆</div>
+          <div class="dc-title">Adoption Certificate</div>
+          <div class="dc-sub">Download PDF</div>
+        </div>
+      </div>
+
+      <!-- Leave a review -->
+      <div class="review-section">
+        <h3 class="review-title">Rate Your Experience</h3>
+        <div class="star-row">
+          <span class="star" onclick="rateStar(1)" id="s1">★</span>
+          <span class="star" onclick="rateStar(2)" id="s2">★</span>
+          <span class="star" onclick="rateStar(3)" id="s3">★</span>
+          <span class="star" onclick="rateStar(4)" id="s4">★</span>
+          <span class="star" onclick="rateStar(5)" id="s5">★</span>
+        </div>
+        <textarea class="form-input form-textarea" placeholder="Share your adoption experience…"></textarea>
+        <button class="btn-primary btn-full mt-8" onclick="submitReview()">Submit Review</button>
+      </div>
+
+      <!-- Resources -->
+      <h3 class="section-title mt-16">Pet Care Resources</h3>
+      <div class="resource-list">
+        <div class="resource-item" onclick="openResource('feeding')">
+          <div class="ri-icon">🍖</div>
+          <div class="ri-content">
+            <div class="ri-title">Feeding Guide</div>
+            <div class="ri-sub">Diet tips for your Golden Retriever</div>
+          </div>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="resource-item" onclick="openResource('training')">
+          <div class="ri-icon">🎾</div>
+          <div class="ri-content">
+            <div class="ri-title">Training Tips</div>
+            <div class="ri-sub">Basic commands and positive reinforcement</div>
+          </div>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="resource-item" onclick="openResource('vet')">
+          <div class="ri-icon">🩺</div>
+          <div class="ri-content">
+            <div class="ri-title">Vet Recommendations</div>
+            <div class="ri-sub">Find SPCA-approved vets near you</div>
+          </div>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="resource-item" onclick="goScreen('screen-home')">
+          <div class="ri-icon">📞</div>
+          <div class="ri-content">
+            <div class="ri-title">Contact SPCA</div>
+            <div class="ri-sub">Get ongoing support from our team</div>
+          </div>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ░░░░░  PROFILE SCREEN  ░░░░░ -->
+  <section class="screen" id="screen-profile">
+    <div class="screen-header-plain">
+      <h2 class="screen-title-plain">My Profile</h2>
+    </div>
+    <div class="screen-body">
+      <div class="profile-header-card">
+        <div class="profile-avatar">SL</div>
+        <div>
+          <div class="profile-name">Sarah Lim</div>
+          <div class="profile-email">sarah.lim@gmail.com</div>
+        </div>
+        <button class="icon-btn" onclick="showToast('Edit profile coming soon!')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+      </div>
+
+      <div class="profile-stat-row">
+        <div class="profile-stat"><div class="ps-val">1</div><div class="ps-label">Application</div></div>
+        <div class="ps-divider"></div>
+        <div class="profile-stat"><div class="ps-val">3</div><div class="ps-label">Pets Saved</div></div>
+        <div class="ps-divider"></div>
+        <div class="profile-stat"><div class="ps-val">0</div><div class="ps-label">Adopted</div></div>
+      </div>
+
+      <div class="profile-menu">
+        <div class="pm-item" onclick="goScreen('screen-journey')">
+          <div class="pm-icon">📋</div><span>My Application</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="pm-item" onclick="showToast('Saved pets coming soon!')">
+          <div class="pm-icon">❤️</div><span>Saved Pets</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="pm-item" onclick="goScreen('screen-post-adoption')">
+          <div class="pm-icon">🐾</div><span>Post-Adoption</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="pm-item" onclick="showToast('Notifications settings coming soon!')">
+          <div class="pm-icon">🔔</div><span>Notifications</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="pm-item" onclick="showToast('Privacy policy — SPCA Singapore')">
+          <div class="pm-icon">🔒</div><span>Privacy &amp; Security</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+        <div class="pm-item pm-item-red" onclick="showToast('Signed out!')">
+          <div class="pm-icon">🚪</div><span>Sign Out</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <nav class="bottom-nav">
+      <button class="nav-btn" onclick="goScreen('screen-home')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        <span>Home</span>
+      </button>
+      <button class="nav-btn" onclick="goScreen('screen-browse')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <span>Browse</span>
+      </button>
+      <button class="nav-btn" onclick="goScreen('screen-journey')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <span>Journey</span>
+      </button>
+      <button class="nav-btn active" onclick="goScreen('screen-profile')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Profile</span>
+      </button>
+    </nav>
+  </section>
+
+</div><!-- /app -->
+
+
+<!-- ░░░░░  MODALS & TOASTS  ░░░░░ -->
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<!-- Confirmation Modal -->
+<div id="modal-overlay" class="modal-overlay hidden" onclick="closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-icon" id="modal-icon">✅</div>
+    <h3 class="modal-title" id="modal-title">Confirmed!</h3>
+    <p class="modal-body" id="modal-body">Your booking has been confirmed.</p>
+    <button class="btn-primary btn-full" onclick="closeModal()">Done</button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

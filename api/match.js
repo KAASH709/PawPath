@@ -85,7 +85,11 @@ module.exports = async function handler(req, res) {
         return res.status(500).json({ error: 'OpenAI API key not configured. Please set OPENAI_API_KEY in Vercel environment variables.' });
     }
 
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    const openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
+        baseURL: process.env.OPENAI_BASE_URL || 'https://api.apiyi.com/v1'
+    });
+
 
     try {
         // ── Call 1: Extract structured preferences ────────────────────────────────

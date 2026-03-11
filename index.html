@@ -82,6 +82,18 @@
         </div>
       </div>
 
+      <!-- AI Match Feature Card -->
+      <div class="ai-match-card" onclick="goScreen('screen-ai-match')">
+        <div class="amc-icon">🤖</div>
+        <div class="amc-body">
+          <div class="amc-title">Find My Perfect Match</div>
+          <div class="amc-sub">Tell us your lifestyle — AI finds your ideal pet</div>
+        </div>
+        <div class="amc-arrow">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+
       <!-- Featured pets -->
       <div class="section-header">
         <h2 class="section-title">Featured Pets</h2>
@@ -872,6 +884,71 @@
         <span>Profile</span>
       </button>
     </nav>
+  </section>
+
+  <!-- ░░░░░  AI MATCH SCREEN  ░░░░░ -->
+  <section class="screen" id="screen-ai-match">
+    <div class="screen-header">
+      <button class="back-btn" onclick="goScreen('screen-home')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      </button>
+      <h2 class="screen-title">AI Pet Match</h2>
+      <div style="width:40px"></div>
+    </div>
+
+    <div class="screen-body">
+      <!-- Prompt card -->
+      <div class="aim-prompt-card" id="aim-prompt-section">
+        <div class="aim-prompt-header">
+          <span class="aim-robot">🤖</span>
+          <div>
+            <div class="aim-prompt-title">Describe your ideal pet</div>
+            <div class="aim-prompt-sub">Be as specific as you like — our AI does the rest</div>
+          </div>
+        </div>
+        <textarea
+          id="aim-input"
+          class="form-input form-textarea aim-textarea"
+          placeholder="e.g. I live in an HDB flat with two kids and work from home. I'd love a calm, low-energy dog that doesn't shed much and can keep me company during the day."
+          rows="5"
+        ></textarea>
+
+        <!-- Example chips -->
+        <div class="aim-examples">
+          <span class="aim-example-label">Try:</span>
+          <button class="aim-chip" onclick="useExample('Calm indoor cat for a small apartment, I travel occasionally')">Calm indoor cat</button>
+          <button class="aim-chip" onclick="useExample('Active dog for outdoor adventures, I have a big backyard and love running')">Active outdoor dog</button>
+          <button class="aim-chip" onclick="useExample('Family-friendly pet good with young kids, low shedding, medium energy')">Family friendly</button>
+        </div>
+
+        <button class="btn-primary btn-full mt-16" id="aim-btn" onclick="runAIMatch()">
+          ✨ Find My Match
+        </button>
+      </div>
+
+      <!-- Loading state -->
+      <div class="aim-loading hidden" id="aim-loading">
+        <div class="aim-dots"><span></span><span></span><span></span></div>
+        <div class="aim-loading-text">Analysing your lifestyle…</div>
+        <div class="aim-loading-sub" id="aim-loading-sub">Extracting preferences</div>
+      </div>
+
+      <!-- Error state -->
+      <div class="aim-error hidden" id="aim-error">
+        <div class="aim-error-icon">⚠️</div>
+        <div class="aim-error-msg" id="aim-error-msg">Something went wrong. Please try again.</div>
+        <button class="btn-secondary mt-16" onclick="resetAIMatch()">Try Again</button>
+      </div>
+
+      <!-- Results -->
+      <div class="aim-results hidden" id="aim-results">
+        <div class="aim-results-header">
+          <div class="aim-results-title">Your Top Matches 🐾</div>
+          <button class="aim-reset" onclick="resetAIMatch()">↩ Try again</button>
+        </div>
+        <div id="aim-results-list"></div>
+      </div>
+    </div>
   </section>
 
 </div><!-- /app -->

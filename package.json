@@ -1,0 +1,12 @@
+{
+  "name": "pawpath-spca",
+  "version": "1.0.0",
+  "description": "PawPath SPCA Digital Adoption App with AI pet matching",
+  "main": "index.js",
+  "dependencies": {
+    "openai": "^4.28.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

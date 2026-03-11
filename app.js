@@ -7,7 +7,9 @@ const PETS = [
     tags: ['Friendly', 'Active', 'Good with kids', 'House-trained'],
     tempTags: ['Gentle', 'Playful', 'Loyal'],
     desc: 'A gentle and loving companion who enjoys outdoor walks and cuddles. Great with kids and other pets. Buddy is housebroken and responds well to basic commands. He loves playing fetch and swimming.',
-    urgent: false
+    urgent: false,
+    energy: 'medium', apartment_friendly: false,
+    good_with_kids: true, shedding: 'high', alone_tolerance: 'medium'
   },
   {
     id: 'luna', name: 'Luna', breed: 'Tabby Cat', type: 'cat', size: 'small',
@@ -16,7 +18,9 @@ const PETS = [
     tags: ['Calm', 'Indoor', 'Good with adults'],
     tempTags: ['Curious', 'Independent', 'Affectionate'],
     desc: 'Luna is a curious and playful tabby who loves sunny window spots and interactive toys. She is gentle, quiet and low-maintenance — perfect for apartment living.',
-    urgent: false
+    urgent: false,
+    energy: 'low', apartment_friendly: true,
+    good_with_kids: false, shedding: 'low', alone_tolerance: 'high'
   },
   {
     id: 'max', name: 'Max', breed: 'Black Labrador', type: 'dog', size: 'large',
@@ -25,7 +29,9 @@ const PETS = [
     tags: ['Energetic', 'Loyal', 'Needs space'],
     tempTags: ['Brave', 'Playful', 'Protective'],
     desc: 'Max is a healthy, energetic Labrador who needs an active family with a yard. He is fully trained and loves to swim. Currently in urgent need of a home.',
-    urgent: true
+    urgent: true,
+    energy: 'high', apartment_friendly: false,
+    good_with_kids: true, shedding: 'medium', alone_tolerance: 'low'
   },
   {
     id: 'bella', name: 'Bella', breed: 'Persian Cat', type: 'cat', size: 'small',
@@ -34,7 +40,9 @@ const PETS = [
     tags: ['Calm', 'Fluffy', 'Indoor'],
     tempTags: ['Regal', 'Gentle', 'Quiet'],
     desc: 'Bella is a gorgeous white Persian with piercing blue eyes. She loves quiet homes and will reward you with head-bumps and purrs. Requires regular grooming.',
-    urgent: false
+    urgent: false,
+    energy: 'low', apartment_friendly: true,
+    good_with_kids: false, shedding: 'medium', alone_tolerance: 'high'
   },
   {
     id: 'charlie', name: 'Charlie', breed: 'Beagle', type: 'dog', size: 'medium',
@@ -43,7 +51,9 @@ const PETS = [
     tags: ['Scent hound', 'Playful', 'Family pet'],
     tempTags: ['Sociable', 'Happy-go-lucky', 'Inquisitive'],
     desc: 'Charlie is a joyful Beagle with a wonderful personality. He gets along with everyone — kids, dogs and cats. He thrives with regular walks and playtime.',
-    urgent: false
+    urgent: false,
+    energy: 'medium', apartment_friendly: true,
+    good_with_kids: true, shedding: 'low', alone_tolerance: 'medium'
   }
 ];
 
@@ -63,6 +73,7 @@ let heartedPets = new Set();
 // Backward nav (going back):  new screen slides in from LEFT,  old slides out RIGHT.
 const SCREEN_DEPTH = {
   'screen-home': 0,
+  'screen-ai-match': 1,
   'screen-browse': 1,
   'screen-pet-detail': 2,
   'screen-book-visit': 3,
@@ -503,3 +514,126 @@ document.addEventListener('DOMContentLoaded', () => {
   // Ensure home screen is active
   document.getElementById('screen-home').classList.add('active');
 });
+
+/* ──────────────────────
+   AI MATCH FEATURE
+────────────────────── */
+
+function useExample(text) {
+  const input = document.getElementById('aim-input');
+  if (input) {
+    input.value = text;
+    input.focus();
+  }
+}
+
+function resetAIMatch() {
+  // Show prompt section, hide loading/error/results
+  document.getElementById('aim-prompt-section').style.display = '';
+  document.getElementById('aim-loading').classList.add('hidden');
+  document.getElementById('aim-error').classList.add('hidden');
+  document.getElementById('aim-results').classList.add('hidden');
+  document.getElementById('aim-results-list').innerHTML = '';
+  document.getElementById('aim-btn').disabled = false;
+}
+
+async function runAIMatch() {
+  const input = document.getElementById('aim-input');
+  const prompt = input ? input.value.trim() : '';
+  if (!prompt) {
+    showToast('Please describe your ideal pet first 🐾');
+    input && input.focus();
+    return;
+  }
+
+  // Show loading, hide others
+  document.getElementById('aim-prompt-section').style.display = 'none';
+  document.getElementById('aim-loading').classList.remove('hidden');
+  document.getElementById('aim-error').classList.add('hidden');
+  document.getElementById('aim-results').classList.add('hidden');
+  document.getElementById('aim-btn').disabled = true;
+
+  // Update loading sub-text progressively
+  const subEl = document.getElementById('aim-loading-sub');
+  const steps = ['Extracting preferences…', 'Filtering pets…', 'Scoring compatibility…', 'Ranking matches…'];
+  let stepIdx = 0;
+  const stepTimer = setInterval(() => {
+    stepIdx = (stepIdx + 1) % steps.length;
+    if (subEl) subEl.textContent = steps[stepIdx];
+  }, 1800);
+
+  try {
+    const response = await fetch('/api/match', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
+    });
+
+    clearInterval(stepTimer);
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error || `Server error (${response.status})`);
+    }
+
+    const data = await response.json();
+    const results = data.results || [];
+
+    document.getElementById('aim-loading').classList.add('hidden');
+
+    if (results.length === 0) {
+      showAIError('No matches found. Try describing your lifestyle differently!');
+      return;
+    }
+
+    renderMatchResults(results);
+
+  } catch (err) {
+    clearInterval(stepTimer);
+    document.getElementById('aim-loading').classList.add('hidden');
+    showAIError(err.message || 'Something went wrong. Please try again.');
+  }
+}
+
+function showAIError(msg) {
+  document.getElementById('aim-prompt-section').style.display = '';
+  document.getElementById('aim-error-msg').textContent = msg;
+  document.getElementById('aim-error').classList.remove('hidden');
+  document.getElementById('aim-btn').disabled = false;
+}
+
+function renderMatchResults(results) {
+  const list = document.getElementById('aim-results-list');
+  list.innerHTML = results.map((r, i) => {
+    const score = r.compatibility_score;
+    const scoreClass = score >= 80 ? 'score-high' : score >= 60 ? 'score-mid' : 'score-low';
+    const medal = i === 0 ? ' aim-rank-1' : '';
+    const pet = PETS.find(p => p.id === r.id) || {};
+    return `
+    <div class="aim-result-card${medal}" onclick="viewPet('${r.id}')">
+      <img class="aim-result-img" src="${r.img}" alt="${r.name}" />
+      <div class="aim-result-body">
+        <div class="aim-result-name">${i === 0 ? '🥇 ' : ''}${r.name}</div>
+        <div class="aim-result-breed">${pet.breed || ''} · ${r.age}</div>
+        <div class="aim-score-row ${scoreClass}">
+          <div class="aim-score-bar-track">
+            <div class="aim-score-bar-fill" style="width:${score}%"></div>
+          </div>
+          <div class="aim-score-badge">${score}%</div>
+        </div>
+        <div class="aim-result-reason">${r.reason}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('aim-results').classList.remove('hidden');
+
+  // Animate score bars after DOM insertion
+  setTimeout(() => {
+    list.querySelectorAll('.aim-score-bar-fill').forEach((bar, i) => {
+      const targetWidth = bar.style.width;
+      bar.style.width = '0%';
+      setTimeout(() => { bar.style.width = targetWidth; }, 100 + i * 80);
+    });
+  }, 50);
+}

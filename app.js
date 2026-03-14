@@ -63,6 +63,24 @@ let selectedDate = null;
 let visitorCount = 1;
 let currentStep = 1;
 let heartedPets = new Set();
+let symptomLogs = [
+  {
+    date: '2025-03-10',
+    type: 'Digestive',
+    severity: 'Mild',
+    description: 'Minor stomach upset after eating too quickly.',
+    medications: 'None',
+    urgent: false
+  },
+  {
+    date: '2025-03-05',
+    type: 'Behavioral',
+    severity: 'Mild',
+    description: 'Excessive barking at strangers, but calms down with treats.',
+    medications: 'None',
+    urgent: false
+  }
+];
 
 /* ──────────────────────
    SCREEN NAVIGATION
@@ -83,7 +101,12 @@ const SCREEN_DEPTH = {
   'screen-home-check': 5,
   'screen-approval': 6,
   'screen-post-adoption': 7,
-  'screen-profile': 8,
+  'screen-schedule-vet': 7,
+  'screen-log-symptoms': 7,
+  'screen-add-symptom-log': 8,
+  'screen-contact-support': 7,
+  'screen-my-adopted-pets': 9,
+  'screen-profile': 10,
 };
 
 function goScreen(id) {
@@ -124,6 +147,14 @@ function goScreen(id) {
   if (scrollArea) scrollArea.scrollTo({ top: 0 });
 
   updateNav(id);
+
+  // Screen-specific initialization
+  if (id === 'screen-my-adopted-pets') {
+    renderAdoptedPets();
+  }
+  if (id === 'screen-log-symptoms') {
+    renderSymptomLogs();
+  }
 }
 
 
@@ -241,6 +272,120 @@ function switchTab(tab) {
 }
 
 /* ──────────────────────
+   ADOPTED PETS
+────────────────────── */
+function renderAdoptedPets() {
+  const list = document.getElementById('adopted-pets-list');
+  // For now, showing Buddy as an adopted pet (sample data)
+  // In a real app, this would come from a backend
+  const adoptedPetsList = [
+    { id: 'buddy', name: 'Buddy', breed: 'Golden Retriever', adoptedDate: 'March 14, 2025', img: 'assets/buddy.jpg' }
+  ];
+
+  list.innerHTML = adoptedPetsList.length === 0 
+    ? '<p style="text-align:center;color:var(--c-text-3);padding:20px;">No adopted pets yet. Start your adoption journey today!</p>'
+    : adoptedPetsList.map(pet => `
+    <div class="adopted-pet-card" onclick="viewAdoptedPet('${pet.id}')">
+      <img src="${pet.img}" alt="${pet.name}" class="apc-img" />
+      <div class="apc-content">
+        <div class="apc-name">${pet.name}</div>
+        <div class="apc-details">${pet.breed} · Adopted ${pet.adoptedDate}</div>
+      </div>
+      <div class="apc-badge">✓ Adopted</div>
+    </div>
+  `).join('');
+}
+
+function viewAdoptedPet(petId) {
+  // Navigate to the post-adoption welcome screen
+  goScreen('screen-post-adoption');
+}
+
+/* ──────────────────────
+   SYMPTOM LOGS
+────────────────────── */
+function renderSymptomLogs() {
+  const historyContainer = document.getElementById('symptom-log-history');
+  if (!historyContainer) return;
+
+  if (symptomLogs.length === 0) {
+    historyContainer.innerHTML = '<div class="symptom-log-empty">No symptom logs yet. Start tracking your pet\'s health!</div>';
+    return;
+  }
+
+  // Sort logs by date (newest first)
+  const sortedLogs = [...symptomLogs].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  historyContainer.innerHTML = sortedLogs.map((log, idx) => {
+    const dateObj = new Date(log.date);
+    const dateStr = dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    
+    return `
+      <div class="symptom-log-item ${log.urgent ? 'urgent' : ''}">
+        <div class="sly-date">${dateStr}</div>
+        <div class="sly-header">
+          <span class="sly-type">${log.type}</span>
+          <span class="sly-severity ${log.severity.toLowerCase()}">${log.severity}</span>
+        </div>
+        <div class="sly-description">${log.description}</div>
+        <div class="sly-meta">
+          ${log.medications ? `<span class="sly-meta-item">💊 ${log.medications}</span>` : ''}
+          ${log.urgent ? `<span class="sly-meta-item" style="color: var(--c-error);">🚨 Urgent</span>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function saveSymptomLogAndReturn() {
+  const dateInput = document.getElementById('symptom-date');
+  const typeBtn = document.querySelector('#symptom-type-group .option-btn.selected');
+  const severityBtn = document.querySelector('#symptom-severity-group .option-btn.selected');
+  const description = document.getElementById('symptom-description').value;
+  const medications = document.getElementById('symptom-medications').value;
+  const urgent = document.getElementById('chk-urgent').checked;
+
+  // Validate
+  if (!dateInput.value || !typeBtn || !severityBtn || !description.trim()) {
+    showToast('Please fill in all required fields');
+    return;
+  }
+
+  // Create new log entry
+  const newLog = {
+    date: dateInput.value,
+    type: typeBtn.textContent,
+    severity: severityBtn.textContent,
+    description: description,
+    medications: medications || 'None',
+    urgent: urgent
+  };
+
+  // Add to logs
+  symptomLogs.push(newLog);
+
+  // Clear form
+  dateInput.value = '';
+  document.getElementById('symptom-description').value = '';
+  document.getElementById('symptom-medications').value = '';
+  document.getElementById('chk-urgent').checked = false;
+  
+  // Deselect options
+  document.querySelectorAll('#symptom-type-group .option-btn, #symptom-severity-group .option-btn').forEach(btn => {
+    btn.classList.remove('selected');
+  });
+
+  // Re-render logs
+  renderSymptomLogs();
+
+  // Show success
+  showToast('✓ Symptom log saved!');
+
+  // Navigate back to log symptoms screen
+  goScreen('screen-log-symptoms');
+}
+
+/* ──────────────────────
    HEARTS / WISHLIST
 ────────────────────── */
 function toggleHeart(petId) {
@@ -341,7 +486,7 @@ window.calNext = function (id) {
 window.selectDate = function (y, m, d, id) {
   selectedDate = new Date(y, m, d);
   // Redraw all calendars
-  ['calendar-mini', 'calendar-interview', 'calendar-homecheck'].forEach(cid => {
+  ['calendar-mini', 'calendar-interview', 'calendar-homecheck', 'calendar-vet'].forEach(cid => {
     const c = document.getElementById(cid);
     if (c && c._draw) c._draw();
   });
@@ -510,6 +655,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderCalendar('calendar-mini');
   renderCalendar('calendar-interview');
   renderCalendar('calendar-homecheck');
+  renderCalendar('calendar-vet');
 
   // Ensure home screen is active
   document.getElementById('screen-home').classList.add('active');

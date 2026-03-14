@@ -744,6 +744,61 @@
         <img src="assets/buddy.jpg" alt="Buddy" class="post-pet-img" />
         <h1 class="post-title">Welcome Home,<br/>Buddy! 🐾</h1>
         <p class="post-sub">You're now a proud paw parent. Here's your adoption summary.</p>
+        
+        <!-- Pet Information embedded in hero -->
+        <div class="post-hero-info">
+          <div class="pho-item">
+            <span class="pho-label">Species / Breed</span>
+            <span class="pho-value" id="post-pet-breed">Golden Retriever</span>
+          </div>
+          <div class="pho-divider"></div>
+          <div class="pho-item">
+            <span class="pho-label">Age</span>
+            <span class="pho-value" id="post-pet-age">2 years</span>
+          </div>
+          <div class="pho-divider"></div>
+          <div class="pho-item">
+            <span class="pho-label">Adopted</span>
+            <span class="pho-value" id="post-adoption-date">Mar 14, 2025</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Medical Information Card -->
+      <div class="post-medical-card">
+        <div class="pm-header">
+          <h3 class="pm-title">📋 Medical Record</h3>
+        </div>
+        <div class="pm-records">
+          <div class="pm-record">
+            <div class="pmr-label">Vaccinations</div>
+            <div class="pmr-value" id="post-vac">Up to date (Rabies, DHPP)</div>
+          </div>
+          <div class="pm-record">
+            <div class="pmr-label">Spay / Neuter</div>
+            <div class="pmr-value" id="post-neuter">Neutered — Jan 2024</div>
+          </div>
+          <div class="pm-record">
+            <div class="pmr-label">Medications</div>
+            <div class="pmr-value" id="post-meds">None currently prescribed</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="post-actions">
+        <button class="post-action-btn" onclick="goScreen('screen-schedule-vet')">
+          <div class="pab-icon">🩺</div>
+          <div class="pab-text">Schedule<br/>Vet Visit</div>
+        </button>
+        <button class="post-action-btn" onclick="goScreen('screen-log-symptoms')">
+          <div class="pab-icon">📝</div>
+          <div class="pab-text">Log Symptoms<br/>& Issues</div>
+        </button>
+        <button class="post-action-btn" onclick="goScreen('screen-contact-support')">
+          <div class="pab-icon">💬</div>
+          <div class="pab-text">Contact SPCA<br/>Support</div>
+        </button>
       </div>
 
       <div class="post-docs-row">
@@ -759,22 +814,9 @@
         </div>
       </div>
 
-      <!-- Leave a review -->
-      <div class="review-section">
-        <h3 class="review-title">Rate Your Experience</h3>
-        <div class="star-row">
-          <span class="star" onclick="rateStar(1)" id="s1">★</span>
-          <span class="star" onclick="rateStar(2)" id="s2">★</span>
-          <span class="star" onclick="rateStar(3)" id="s3">★</span>
-          <span class="star" onclick="rateStar(4)" id="s4">★</span>
-          <span class="star" onclick="rateStar(5)" id="s5">★</span>
-        </div>
-        <textarea class="form-input form-textarea" placeholder="Share your adoption experience…"></textarea>
-        <button class="btn-primary btn-full mt-8" onclick="submitReview()">Submit Review</button>
-      </div>
-
       <!-- Resources -->
       <h3 class="section-title mt-16">Pet Care Resources</h3>
+      <br>
       <div class="resource-list">
         <div class="resource-item" onclick="openResource('feeding')">
           <div class="ri-icon">🍖</div>
@@ -792,24 +834,226 @@
           </div>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
         </div>
-        <div class="resource-item" onclick="openResource('vet')">
-          <div class="ri-icon">🩺</div>
-          <div class="ri-content">
-            <div class="ri-title">Vet Recommendations</div>
-            <div class="ri-sub">Find SPCA-approved vets near you</div>
-          </div>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-        <div class="resource-item" onclick="goScreen('screen-home')">
-          <div class="ri-icon">📞</div>
-          <div class="ri-content">
-            <div class="ri-title">Contact SPCA</div>
-            <div class="ri-sub">Get ongoing support from our team</div>
-          </div>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
       </div>
     </div>
+  </section>
+
+
+  <!-- ░░░░░  SCHEDULE VET VISIT SCREEN  ░░░░░ -->
+  <section class="screen" id="screen-schedule-vet">
+    <div class="screen-header">
+      <button class="back-btn" onclick="goScreen('screen-post-adoption')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      </button>
+      <h2 class="screen-title">Schedule Vet Visit</h2>
+      <div></div>
+    </div>
+    <div class="screen-body">
+      <div class="info-card">
+        <div class="ic-icon">🩺</div>
+        <div>
+          <div class="ic-title">Schedule a Veterinary Appointment</div>
+          <div class="ic-sub">Book an appointment with SPCA's veterinary clinic for your new pet's health care.</div>
+        </div>
+      </div>
+
+      <!-- SPCA Clinic Info -->
+      <div class="info-card">
+        <div class="ic-icon">🏥</div>
+        <div>
+          <div class="ic-title">SPCA Veterinary Clinic</div>
+          <div class="ic-sub">140 Moulmein Rd, Singapore 308426<br/>📞 +65 6287 5555</div>
+        </div>
+      </div>
+
+      <div class="form-section-title">Reason for Visit</div>
+      <div class="option-group" id="vet-reason">
+        <button class="option-btn" onclick="selectOption(this, 'vet-reason')">Regular Check-up</button>
+        <button class="option-btn" onclick="selectOption(this, 'vet-reason')">Vaccinations</button>
+        <button class="option-btn" onclick="selectOption(this, 'vet-reason')">Health Concern</button>
+        <button class="option-btn" onclick="selectOption(this, 'vet-reason')">Follow-up</button>
+      </div>
+
+      <div class="form-section-title">Choose a Date</div>
+      <div class="calendar-mini" id="calendar-vet">
+        <!-- populated by JS -->
+      </div>
+
+      <div class="form-section-title">Available Time Slots</div>
+      <div class="time-slots" id="vet-time-slots">
+        <button class="time-slot" onclick="selectSlot(this)">9:00 AM</button>
+        <button class="time-slot" onclick="selectSlot(this)">10:00 AM</button>
+        <button class="time-slot" onclick="selectSlot(this)">11:00 AM</button>
+        <button class="time-slot" onclick="selectSlot(this)">2:00 PM</button>
+        <button class="time-slot" onclick="selectSlot(this)">3:00 PM</button>
+        <button class="time-slot" onclick="selectSlot(this)">4:00 PM</button>
+      </div>
+
+      <div class="form-section-title">Additional Notes</div>
+      <textarea class="form-input form-textarea" placeholder="Any specific concerns or health notes for the vet…"></textarea>
+
+      <button class="btn-primary btn-full mt-16" onclick="showToast('Vet appointment request submitted! You will receive confirmation via email.')">Submit Request</button>
+    </div>
+  </section>
+
+
+  <!-- ░░░░░  LOG SYMPTOMS SCREEN  ░░░░░ -->
+  <section class="screen" id="screen-log-symptoms">
+    <div class="screen-header">
+      <button class="back-btn" onclick="goScreen('screen-post-adoption')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      </button>
+      <h2 class="screen-title">Log Symptoms</h2>
+      <button class="icon-btn" onclick="goScreen('screen-add-symptom-log')">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
+    </div>
+    <div class="screen-body">
+      <div class="info-card">
+        <div class="ic-icon">📝</div>
+        <div>
+          <div class="ic-title">Record Pet Health Issues</div>
+          <div class="ic-sub">Keep track of any symptoms or behavioral changes for your vet records.</div>
+        </div>
+      </div>
+
+      <!-- Log History Section -->
+      <div class="symptom-log-history" id="symptom-log-history">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ░░░░░  ADD SYMPTOM LOG SCREEN  ░░░░░ -->
+  <section class="screen" id="screen-add-symptom-log">
+    <div class="screen-header">
+      <button class="back-btn" onclick="goScreen('screen-log-symptoms')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      </button>
+      <h2 class="screen-title">Add Symptom Log</h2>
+      <div></div>
+    </div>
+    <div class="screen-body">
+      <div class="form-section-title">Date of Symptom</div>
+      <input type="date" class="form-input" id="symptom-date" />
+
+      <div class="form-section-title">Symptom Type</div>
+      <div class="option-group" id="symptom-type-group">
+        <button class="option-btn" onclick="selectOption(this, 'symptom-type-group')">Digestive</button>
+        <button class="option-btn" onclick="selectOption(this, 'symptom-type-group')">Respiratory</button>
+        <button class="option-btn" onclick="selectOption(this, 'symptom-type-group')">Skin/Coat</button>
+        <button class="option-btn" onclick="selectOption(this, 'symptom-type-group')">Behavioral</button>
+        <button class="option-btn" onclick="selectOption(this, 'symptom-type-group')">Other</button>
+      </div>
+
+      <div class="form-section-title">Severity</div>
+      <div class="option-group" id="symptom-severity-group">
+        <button class="option-btn" onclick="selectOption(this, 'symptom-severity-group')">Mild</button>
+        <button class="option-btn" onclick="selectOption(this, 'symptom-severity-group')">Moderate</button>
+        <button class="option-btn" onclick="selectOption(this, 'symptom-severity-group')">Severe</button>
+      </div>
+
+      <div class="form-section-title">Detailed Description</div>
+      <textarea class="form-input form-textarea" id="symptom-description" placeholder="Describe the symptom, when it started, and any other relevant details…"></textarea>
+
+      <div class="form-section-title">Medications Given (if any)</div>
+      <input type="text" class="form-input" id="symptom-medications" placeholder="e.g. Ibuprofen 5ml" />
+
+      <div class="checkbox-row">
+        <input type="checkbox" id="chk-urgent" />
+        <label for="chk-urgent" class="checkbox-label">This requires urgent attention</label>
+      </div>
+
+      <button class="btn-primary btn-full mt-16" onclick="saveSymptomLogAndReturn()">Save Entry</button>
+    </div>
+  </section>
+
+
+  <!-- ░░░░░  CONTACT SUPPORT SCREEN  ░░░░░ -->
+  <section class="screen" id="screen-contact-support">
+    <div class="screen-header">
+      <button class="back-btn" onclick="goScreen('screen-post-adoption')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      </button>
+      <h2 class="screen-title">Contact Support</h2>
+      <div></div>
+    </div>
+    <div class="screen-body">
+      <div class="info-card">
+        <div class="ic-icon">💬</div>
+        <div>
+          <div class="ic-title">SPCA Support Team</div>
+          <div class="ic-sub">We're here to help with any post-adoption questions or concerns.</div>
+        </div>
+      </div>
+
+      <div class="contact-method">
+        <div class="cm-icon">📞</div>
+        <div>
+          <div class="cm-title">Call Us</div>
+          <div class="cm-desc">Speak directly with our team</div>
+          <div class="cm-value">+65 6287 5555</div>
+        </div>
+        <button class="cm-btn" onclick="showToast('Calling SPCA support...')">Call</button>
+      </div>
+
+      <div class="contact-method">
+        <div class="cm-icon">💌</div>
+        <div>
+          <div class="cm-title">Email Us</div>
+          <div class="cm-desc">Get a detailed response</div>
+          <div class="cm-value">adoptsupport@spca.org.sg</div>
+        </div>
+        <button class="cm-btn" onclick="showToast('Opening email client...')">Email</button>
+      </div>
+
+      <div class="form-section-title">Send a Message</div>
+      <label class="form-label">Issue Category</label>
+      <div class="option-group">
+        <button class="option-btn" onclick="selectOption(this)">Pet Behavior</button>
+        <button class="option-btn" onclick="selectOption(this)">Health Question</button>
+        <button class="option-btn" onclick="selectOption(this)">Adoption Support</button>
+        <button class="option-btn" onclick="selectOption(this)">General Inquiry</button>
+      </div>
+
+      <label class="form-label">Your Message</label>
+      <textarea class="form-input form-textarea" placeholder="Tell us how we can help…"></textarea>
+
+      <button class="btn-primary btn-full mt-16" onclick="showToast('Message sent to SPCA support!')">Send Message</button>
+    </div>
+  </section>
+
+
+  <!-- ░░░░░  MY ADOPTED PETS SCREEN  ░░░░░ -->
+  <section class="screen" id="screen-my-adopted-pets">
+    <div class="screen-header-plain">
+      <h2 class="screen-title-plain">My Adopted Pets</h2>
+    </div>
+    <div class="screen-body">
+      <div class="adopted-pets-list" id="adopted-pets-list">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <nav class="bottom-nav">
+      <button class="nav-btn" onclick="goScreen('screen-home')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        <span>Home</span>
+      </button>
+      <button class="nav-btn" onclick="goScreen('screen-browse')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <span>Browse</span>
+      </button>
+      <button class="nav-btn" onclick="goScreen('screen-journey')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <span>Journey</span>
+      </button>
+      <button class="nav-btn" onclick="goScreen('screen-profile')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Profile</span>
+      </button>
+    </nav>
   </section>
 
 
@@ -847,8 +1091,8 @@
           <div class="pm-icon">❤️</div><span>Saved Pets</span>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
         </div>
-        <div class="pm-item" onclick="goScreen('screen-post-adoption')">
-          <div class="pm-icon">🐾</div><span>Post-Adoption</span>
+        <div class="pm-item" onclick="goScreen('screen-my-adopted-pets')">
+          <div class="pm-icon">🐾</div><span>My Adopted Pets</span>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
         </div>
         <div class="pm-item" onclick="showToast('Notifications settings coming soon!')">

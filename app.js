@@ -63,6 +63,7 @@ let selectedDate = null;
 let visitorCount = 1;
 let currentStep = 1;
 let heartedPets = new Set();
+let userProfile = null; // Stores preferences for ML recommendations
 let symptomLogs = [
   {
     date: '2025-03-10',
@@ -282,7 +283,7 @@ function renderAdoptedPets() {
     { id: 'buddy', name: 'Buddy', breed: 'Golden Retriever', adoptedDate: 'March 14, 2025', img: 'assets/buddy.jpg' }
   ];
 
-  list.innerHTML = adoptedPetsList.length === 0 
+  list.innerHTML = adoptedPetsList.length === 0
     ? '<p style="text-align:center;color:var(--c-text-3);padding:20px;">No adopted pets yet. Start your adoption journey today!</p>'
     : adoptedPetsList.map(pet => `
     <div class="adopted-pet-card" onclick="viewAdoptedPet('${pet.id}')">
@@ -319,7 +320,7 @@ function renderSymptomLogs() {
   historyContainer.innerHTML = sortedLogs.map((log, idx) => {
     const dateObj = new Date(log.date);
     const dateStr = dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-    
+
     return `
       <div class="symptom-log-item ${log.urgent ? 'urgent' : ''}">
         <div class="sly-date">${dateStr}</div>
@@ -369,7 +370,7 @@ function saveSymptomLogAndReturn() {
   document.getElementById('symptom-description').value = '';
   document.getElementById('symptom-medications').value = '';
   document.getElementById('chk-urgent').checked = false;
-  
+
   // Deselect options
   document.querySelectorAll('#symptom-type-group .option-btn, #symptom-severity-group .option-btn').forEach(btn => {
     btn.classList.remove('selected');
@@ -659,7 +660,55 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Ensure home screen is active
   document.getElementById('screen-home').classList.add('active');
+
+  // Load saved profile and run ML recommendations
+  const saved = localStorage.getItem('pawpath_profile');
+  if (saved) {
+    try {
+      userProfile = JSON.parse(saved);
+      updateRecommendations();
+    } catch (e) { }
+  }
 });
+
+/* ──────────────────────
+   ML RECOMMENDATIONS
+────────────────────── */
+
+function updateRecommendations() {
+  const container = document.getElementById('home-ml-recommendations');
+  const list = document.getElementById('ml-recommendations-list');
+
+  if (!userProfile || !window.PawML) {
+    container.classList.add('hidden');
+    return;
+  }
+
+  // Use the ML model to rank all pets
+  const ranked = PawML.rankPets(userProfile, PETS);
+
+  // Show top 3 (excluding the very best one if already featured, or just show top 3)
+  const topMatches = ranked.slice(0, 3);
+
+  list.innerHTML = topMatches.map(p => `
+    <div class="pet-card" onclick="viewPet('${p.id}')">
+      <div class="pet-card-img-wrap">
+        <img src="${p.img}" alt="${p.name}" class="pet-card-img" />
+        <button class="heart-btn ${heartedPets.has(p.id) ? 'liked' : ''}" 
+                onclick="event.stopPropagation();toggleHeart('${p.id}')">
+          ${heartedPets.has(p.id) ? '♥' : '♡'}
+        </button>
+        <div class="pet-badge">${Math.round(p.mlScore * 100)}% Match</div>
+      </div>
+      <div class="pet-card-info">
+        <div class="pet-card-name">${p.name}</div>
+        <div class="pet-card-meta">${p.type === 'dog' ? '🐶' : '🐱'} ${p.breed}</div>
+      </div>
+    </div>
+  `).join('');
+
+  container.classList.remove('hidden');
+}
 
 /* ──────────────────────
    AI MATCH FEATURE
@@ -733,6 +782,26 @@ async function runAIMatch() {
     }
 
     renderMatchResults(results);
+
+    // ── ML INTEGRATION ─────────────────────────────────────────
+    // Save preferences to profile and update home recommendations
+    if (data.preferences) {
+      userProfile = {
+        wants_dog: data.preferences.species === 'dog',
+        preferred_size: data.preferences.size || 'medium',
+        preferred_energy: data.preferences.energy || 'medium',
+        apartment_friendly: data.preferences.apartment_friendly || false,
+        has_kids: data.preferences.good_with_kids || false,
+        max_shedding: data.preferences.shedding || 'medium',
+        alone_tolerance_needed: data.preferences.alone_tolerance || 'medium'
+      };
+
+      // Persist to localStorage
+      localStorage.setItem('pawpath_profile', JSON.stringify(userProfile));
+
+      // Update the ML section on home screen
+      updateRecommendations();
+    }
 
   } catch (err) {
     clearInterval(stepTimer);

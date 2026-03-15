@@ -137,6 +137,19 @@
       </div>
     </div>
 
+    <!-- ML Recommendations Section -->
+    <div id="home-ml-recommendations" class="hidden">
+      <div class="section-header">
+        <div class="sh-title-group">
+          <h2 class="section-title">Recommended for You</h2>
+          <span class="ai-badge">Personalized by AI</span>
+        </div>
+      </div>
+      <div class="pet-cards-row" id="ml-recommendations-list">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
     <!-- Bottom Nav -->
     <nav class="bottom-nav">
       <button class="nav-btn active" onclick="goScreen('screen-home')">
@@ -969,6 +982,7 @@
   </div>
 </div>
 
+<script src="ml/model_export.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

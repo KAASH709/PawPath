@@ -54,6 +54,116 @@ const PETS = [
     urgent: false,
     energy: 'medium', apartment_friendly: true,
     good_with_kids: true, shedding: 'low', alone_tolerance: 'medium'
+  },
+  {
+    id: 'daisy', name: 'Daisy', breed: 'Pembroke Welsh Corgi', type: 'dog', size: 'small',
+    age: '1 year', weight: '10 kg', gender: 'Female', img: 'assets/daisy.jpg',
+    status: 'Available', vaccinated: 'Yes', neutered: 'Yes',
+    tags: ['Friendly', 'Low-set', 'Outgoing'],
+    tempTags: ['Spirited', 'Alert', 'Affectionate'],
+    desc: 'Daisy is a spiritful Corgi who loves attention and short walks. She is very affectionate and gets along well with children. Perfect for a loving family home.',
+    urgent: false,
+    energy: 'low', apartment_friendly: true,
+    good_with_kids: true, shedding: 'medium', alone_tolerance: 'high'
+  },
+  {
+    id: 'milo', name: 'Milo', breed: 'Orange Tabby', type: 'cat', size: 'small',
+    age: '2 years', weight: '4.5 kg', gender: 'Male', img: 'assets/milo.jpg',
+    status: 'Available', vaccinated: 'Yes', neutered: 'Yes',
+    tags: ['Relaxed', 'Mellow', 'Chatty'],
+    tempTags: ['Vibrant', 'Social', 'Sweet'],
+    desc: 'Milo is a classic orange tabby with a heart of gold. He loves human company and will follow you around the house for some head scratches.',
+    urgent: false,
+    energy: 'medium', apartment_friendly: true,
+    good_with_kids: false, shedding: 'medium', alone_tolerance: 'high'
+  },
+  {
+    id: 'cooper', name: 'Cooper', breed: 'Border Collie', type: 'dog', size: 'large',
+    age: '2.5 years', weight: '20 kg', gender: 'Male', img: 'assets/cooper.jpg',
+    status: 'Available', vaccinated: 'Yes', neutered: 'Yes',
+    tags: ['Intelligent', 'Athletic', 'Focused'],
+    tempTags: ['Workaholic', 'Eager', 'Protective'],
+    desc: 'Cooper is a highly intelligent Border Collie who needs a job to do. Ideal for an active owner who loves training and outdoor activities.',
+    urgent: false,
+    energy: 'high', apartment_friendly: false,
+    good_with_kids: true, shedding: 'high', alone_tolerance: 'low'
+  },
+  {
+    id: 'coco', name: 'Coco', breed: 'Siamese', type: 'cat', size: 'small',
+    age: '3 years', weight: '3.5 kg', gender: 'Female', img: 'assets/coco.jpg',
+    status: 'Available', vaccinated: 'Yes', neutered: 'Yes',
+    tags: ['Elegant', 'Vocal', 'Attached'],
+    tempTags: ['Smart', 'Demanding', 'Loyal'],
+    desc: 'Coco is a beautiful Siamese who loves to be the center of attention. She is very vocal and will let you know when she wants playtime or treats.',
+    urgent: false,
+    energy: 'low', apartment_friendly: true,
+    good_with_kids: false, shedding: 'low', alone_tolerance: 'high'
+  },
+  {
+    id: 'oliver', name: 'Oliver', breed: 'French Bulldog', type: 'dog', size: 'small',
+    age: '4 years', weight: '11 kg', gender: 'Male', img: 'assets/oliver.jpg',
+    status: 'Available', vaccinated: 'Yes', neutered: 'Yes',
+    tags: ['Low-energy', 'Playful', 'Stubborn'],
+    tempTags: ['Comedic', 'Chill', 'Lovable'],
+    desc: 'Oliver is a typical Frenchie who loves napping as much as he loves short play sessions. He is great with kids and very low maintenance.',
+    urgent: false,
+    energy: 'low', apartment_friendly: true,
+    good_with_kids: true, shedding: 'low', alone_tolerance: 'medium'
+  },
+  {
+    id: 'simba', name: 'Simba', breed: 'Ginger Maine Coon Mix', type: 'cat', size: 'medium',
+    age: '5 years', weight: '6.5 kg', gender: 'Male', img: 'assets/simba.jpg',
+    status: 'Available', vaccinated: 'Yes', neutered: 'Yes',
+    tags: ['Floppy', 'Big', 'Gentle giant'],
+    tempTags: ['Magnificent', 'Fluffy', 'Kind'],
+    desc: 'Simba is a large, fluffy ginger cat who is a true gentle giant. He loves lounging in the sun and is surprisingly active for his size.',
+    urgent: false,
+    energy: 'high', apartment_friendly: true,
+    good_with_kids: true, shedding: 'medium', alone_tolerance: 'medium'
+  },
+  {
+    id: 'bailey', name: 'Bailey', breed: 'Cocker Spaniel', type: 'dog', size: 'medium',
+    age: '2 years', weight: '13 kg', gender: 'Female', img: 'assets/bailey.jpg',
+    status: 'Available', vaccinated: 'Yes', neutered: 'Yes',
+    tags: ['Gentle', 'Happy', 'Good ears'],
+    tempTags: ['Cheerful', 'Gentle', 'Sensitive'],
+    desc: 'Bailey is a sweet and happy Cocker Spaniel who loves everyone she meets. She thrives on companionship and gentle walks.',
+    urgent: false,
+    energy: 'medium', apartment_friendly: true,
+    good_with_kids: true, shedding: 'high', alone_tolerance: 'medium'
+  },
+  {
+    id: 'nala', name: 'Nala', breed: 'Calico', type: 'cat', size: 'small',
+    age: '1.5 years', weight: '3.8 kg', gender: 'Female', img: 'assets/nala.jpg',
+    status: 'Available', vaccinated: 'Yes', neutered: 'Yes',
+    tags: ['Striking', 'Independent', 'Quiet'],
+    tempTags: ['Reserved', 'Graceful', 'Observant'],
+    desc: 'Nala is a beautiful calico cat who enjoys watching the world from a high bookshelf. She is independent but appreciates a good scratching session.',
+    urgent: false,
+    energy: 'low', apartment_friendly: true,
+    good_with_kids: false, shedding: 'medium', alone_tolerance: 'high'
+  },
+  {
+    id: 'teddy', name: 'Teddy', breed: 'Toy Poodle', type: 'dog', size: 'small',
+    age: '3 years', weight: '4.5 kg', gender: 'Male', img: 'assets/teddy.jpg',
+    status: 'Urgent', vaccinated: 'Yes', neutered: 'Yes',
+    tags: ['Hypoallergenic', 'Clever', 'Portable'],
+    tempTags: ['Bouncy', 'Bright', 'Charming'],
+    desc: 'Teddy is a charming little poodle who is always ready for a walk. He is very clever and learns tricks quickly. Currently in urgent need of rehoming.',
+    urgent: true,
+    energy: 'medium', apartment_friendly: true,
+    good_with_kids: true, shedding: 'low', alone_tolerance: 'high'
+  },
+  {
+    id: 'cleo', name: 'Cleo', breed: 'Abyssinian', type: 'cat', size: 'small',
+    age: '2 years', weight: '3 kg', gender: 'Female', img: 'assets/cleo.jpg',
+    status: 'Available', vaccinated: 'Yes', neutered: 'Yes',
+    tags: ['Sleek', 'Active', 'Inquisitive'],
+    tempTags: ['Acrobatic', 'Intelligent', 'Curious'],
+    desc: 'Cleo is a sleek and active Abyssinian who loves to climb and explore. She is very intelligent and needs interactive toys to keep her busy.',
+    urgent: false,
+    energy: 'high', apartment_friendly: true,
+    good_with_kids: false, shedding: 'low', alone_tolerance: 'medium'
   }
 ];
 

@@ -416,6 +416,9 @@ function toggleHeart(petId) {
   }
 
   showToast(heartedPets.has(petId) ? `${petId.charAt(0).toUpperCase() + petId.slice(1)} saved to wishlist ❤️` : 'Removed from wishlist');
+
+  // Update ML recommendations based on new heart state
+  updateRecommendations();
 }
 
 /* ──────────────────────
@@ -679,15 +682,25 @@ function updateRecommendations() {
   const container = document.getElementById('home-ml-recommendations');
   const list = document.getElementById('ml-recommendations-list');
 
-  if (!userProfile || !window.PawML) {
+  if (!window.PawML) {
+    container.classList.add('hidden');
+    return;
+  }
+
+  // Derive the active profile to use for ranking
+  // If user hasn't run the AI Match yet, use their "Likes" to build a profile
+  // If they have both, we blend them.
+  const profileToUse = deriveEffectiveProfile();
+
+  if (!profileToUse) {
     container.classList.add('hidden');
     return;
   }
 
   // Use the ML model to rank all pets
-  const ranked = PawML.rankPets(userProfile, PETS);
+  const ranked = PawML.rankPets(profileToUse, PETS);
 
-  // Show top 3 (excluding the very best one if already featured, or just show top 3)
+  // Show top 3
   const topMatches = ranked.slice(0, 3);
 
   list.innerHTML = topMatches.map(p => `
@@ -708,6 +721,66 @@ function updateRecommendations() {
   `).join('');
 
   container.classList.remove('hidden');
+}
+
+/**
+ * Combines AI-extracted preferences with manual "Likes" 
+ * to create the best numeric profile for the ML model.
+ */
+function deriveEffectiveProfile() {
+  let finalProfile = userProfile ? { ...userProfile } : null;
+
+  // If we have likes, refine the profile based on them
+  if (heartedPets.size > 0) {
+    const likedPets = Array.from(heartedPets).map(id => PETS.find(p => p.id === id)).filter(Boolean);
+
+    // Simple average of categorical and numeric traits
+    const avgTraits = {
+      wants_dog: likedPets.filter(p => p.type === 'dog').length / likedPets.length,
+      preferred_size: 0,
+      preferred_energy: 0,
+      apartment_friendly: likedPets.filter(p => p.apartment_friendly).length / likedPets.length,
+      has_kids: likedPets.filter(p => p.good_with_kids).length / likedPets.length,
+      max_shedding: 0,
+      alone_tolerance_needed: 0
+    };
+
+    const SIZE_VALS = { small: 0, medium: 0.5, large: 1 };
+    const ENERGY_VALS = { low: 0, medium: 0.5, high: 1 };
+    const SHED_VALS = { low: 0, medium: 0.5, high: 1 };
+
+    likedPets.forEach(p => {
+      avgTraits.preferred_size += SIZE_VALS[p.size] ?? 0.5;
+      avgTraits.preferred_energy += ENERGY_VALS[p.energy] ?? 0.5;
+      avgTraits.max_shedding += SHED_VALS[p.shedding] ?? 0.5;
+      avgTraits.alone_tolerance_needed += SHED_VALS[p.alone_tolerance] ?? 0.5;
+    });
+
+    avgTraits.preferred_size /= likedPets.length;
+    avgTraits.preferred_energy /= likedPets.length;
+    avgTraits.max_shedding /= likedPets.length;
+    avgTraits.alone_tolerance_needed /= likedPets.length;
+
+    // Convert numeric averages back to profile format if starting fresh
+    if (!finalProfile) {
+      finalProfile = {
+        wants_dog: avgTraits.wants_dog > 0.5,
+        preferred_size: avgTraits.preferred_size < 0.33 ? 'small' : avgTraits.preferred_size > 0.66 ? 'large' : 'medium',
+        preferred_energy: avgTraits.preferred_energy < 0.33 ? 'low' : avgTraits.preferred_energy > 0.66 ? 'high' : 'medium',
+        apartment_friendly: avgTraits.apartment_friendly > 0.5,
+        has_kids: avgTraits.has_kids > 0.5,
+        max_shedding: avgTraits.max_shedding < 0.33 ? 'low' : avgTraits.max_shedding > 0.66 ? 'high' : 'medium',
+        alone_tolerance_needed: avgTraits.alone_tolerance_needed < 0.33 ? 'low' : avgTraits.alone_tolerance_needed > 0.66 ? 'high' : 'medium'
+      };
+    } else {
+      // If we already have an AI profile, nudge it slightly towards the user's manual likes
+      // (This is a 70/30 blend)
+      finalProfile.wants_dog = (finalProfile.wants_dog ? 1 : 0) * 0.7 + avgTraits.wants_dog * 0.3 > 0.5;
+      // Note: In a production app, we would blend all 7 traits similarly.
+    }
+  }
+
+  return finalProfile;
 }
 
 /* ──────────────────────

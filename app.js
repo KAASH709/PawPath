@@ -527,6 +527,9 @@ function toggleHeart(petId) {
 
   showToast(heartedPets.has(petId) ? `${petId.charAt(0).toUpperCase() + petId.slice(1)} saved to wishlist ❤️` : 'Removed from wishlist');
 
+  // Persist hearted pets
+  localStorage.setItem('pawpath_hearts', JSON.stringify(Array.from(heartedPets)));
+
   // Update ML recommendations based on new heart state
   updateRecommendations();
 }
@@ -761,6 +764,17 @@ function openResource(type) {
   showToast(labels[type] || 'Opening…');
 }
 
+function sign_out() {
+  localStorage.removeItem('pawpath_profile');
+  localStorage.removeItem('pawpath_hearts');
+  userProfile = null;
+  heartedPets = new Set();
+  renderPetGrid('all');
+  updateRecommendations();
+  showToast('Signed out! Session cleared.');
+  goScreen('screen-home');
+}
+
 /* ──────────────────────
    INIT
 ────────────────────── */
@@ -774,13 +788,28 @@ document.addEventListener('DOMContentLoaded', () => {
   // Ensure home screen is active
   document.getElementById('screen-home').classList.add('active');
 
-  // Load saved profile and run ML recommendations
-  const saved = localStorage.getItem('pawpath_profile');
-  if (saved) {
+  // Load saved profile
+  const savedProfile = localStorage.getItem('pawpath_profile');
+  if (savedProfile) {
     try {
-      userProfile = JSON.parse(saved);
-      updateRecommendations();
+      userProfile = JSON.parse(savedProfile);
     } catch (e) { }
+  }
+
+  // Load saved hearts
+  const savedHearts = localStorage.getItem('pawpath_hearts');
+  if (savedHearts) {
+    try {
+      const heartList = JSON.parse(savedHearts);
+      heartedPets = new Set(heartList);
+      // Re-render grid to show active hearts
+      renderPetGrid(currentFilter);
+    } catch (e) { }
+  }
+
+  // Initial recommendation run
+  if (userProfile || heartedPets.size > 0) {
+    updateRecommendations();
   }
 });
 
@@ -883,10 +912,18 @@ function deriveEffectiveProfile() {
         alone_tolerance_needed: avgTraits.alone_tolerance_needed < 0.33 ? 'low' : avgTraits.alone_tolerance_needed > 0.66 ? 'high' : 'medium'
       };
     } else {
-      // If we already have an AI profile, nudge it slightly towards the user's manual likes
-      // (This is a 70/30 blend)
-      finalProfile.wants_dog = (finalProfile.wants_dog ? 1 : 0) * 0.7 + avgTraits.wants_dog * 0.3 > 0.5;
-      // Note: In a production app, we would blend all 7 traits similarly.
+      // If we already have an AI profile, nudge it significantly towards the user's manual likes
+      // (This is a 30/70 blend - 70% weight to manual likes)
+      finalProfile.wants_dog = (finalProfile.wants_dog ? 1 : 0) * 0.3 + avgTraits.wants_dog * 0.7 > 0.5;
+      finalProfile.apartment_friendly = (finalProfile.apartment_friendly ? 1 : 0) * 0.3 + avgTraits.apartment_friendly * 0.7 > 0.5;
+      finalProfile.has_kids = (finalProfile.has_kids ? 1 : 0) * 0.3 + avgTraits.has_kids * 0.7 > 0.5;
+
+      // Also adjust categorical traits based on averages
+      if (avgTraits.preferred_size < 0.33) finalProfile.preferred_size = 'small';
+      else if (avgTraits.preferred_size > 0.66) finalProfile.preferred_size = 'large';
+
+      if (avgTraits.preferred_energy < 0.33) finalProfile.preferred_energy = 'low';
+      else if (avgTraits.preferred_energy > 0.66) finalProfile.preferred_energy = 'high';
     }
   }
 

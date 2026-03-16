@@ -99,18 +99,18 @@ const trainingData = [];
 ARCHETYPES.forEach(({ prefs, likes, dislikes }) => {
     const userVec = encodeUser(prefs);
 
-    // Liked pets → label 1
+    // Liked pets → label 0.92 (smoothing prevents saturation at 1.0)
     likes.forEach(petId => {
         const pet = PETS.find(p => p.id === petId);
         if (!pet) return;
-        trainingData.push({ input: [...userVec, ...encodePet(pet)], output: [1] });
+        trainingData.push({ input: [...userVec, ...encodePet(pet)], output: [0.92] });
     });
 
-    // Disliked pets → label 0
+    // Disliked pets → label 0.08 (smoothing prevents saturation at 0.0)
     dislikes.forEach(petId => {
         const pet = PETS.find(p => p.id === petId);
         if (!pet) return;
-        trainingData.push({ input: [...userVec, ...encodePet(pet)], output: [0] });
+        trainingData.push({ input: [...userVec, ...encodePet(pet)], output: [0.08] });
     });
 });
 

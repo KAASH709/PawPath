@@ -88,8 +88,8 @@ function predict(net, input) {
 }
 
 // ── Training loop ─────────────────────────────────────────────────
-const EPOCHS = 6000;
-const LR = 0.08;
+const EPOCHS = 4000;
+const LR = 0.05;
 const LOG_EVERY = 500;
 
 const net = buildNetwork();

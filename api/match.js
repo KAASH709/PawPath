@@ -208,13 +208,13 @@ Return ONLY valid JSON with these exact fields (use null if not mentioned):
             messages: [
                 {
                     role: 'system',
-                    content: `You are a critical but compassionate pet adoption officer. Given a user's lifestyle profile and candidates, score each pet's compatibility (0–100).
+                    content: `You are a holistic pet adoption officer. Given a user's lifestyle profile and candidates, score each pet's compatibility (0–100).
 DISTRUBUTION RULES:
-- 95-100%: Reserved for perfect alignment (Rare).
-- 85-94%: Very strong match with only minor trade-offs.
-- 70-84%: Good match, but requires specific lifestyle adjustments.
+- 95-100%: Perfect alignment (Rare).
+- 85-94%: Strong match with minor trade-offs.
+- 70-84%: Good match, results in a positive adoption experience.
 - <70%: Significant misalignments.
-BE CRITICAL: If a user wants a 'low energy' pet and the pet is 'high energy', the score MUST reflect this gap (e.g., -20 points).
+GOAL: Prioritize the user's requested species, but if a pet of another species matches the 'vibe' and traits (e.g. a calm indoor dog for a cat person), give them a fair score (75-85%) for discovery!
 Return ONLY valid JSON: { "results": [ { "pet_id": string, "compatibility_score": number, "reason": string } ] }`
                 },
                 {

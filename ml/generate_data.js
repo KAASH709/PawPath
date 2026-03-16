@@ -81,26 +81,48 @@ const PETS = [
 // We define representative user-preference profiles and for each
 // profile we specify which pets they would realistically like.
 const ARCHETYPES = [
-    // Apartment cat person, works long hours (Luna, Bella, Coco, Nala)
-    { prefs: { wants_dog: 0.0, preferred_size: 'small', preferred_energy: 'low', apartment_friendly: true, has_kids: false, max_shedding: 'low', alone_tolerance_needed: 'high' }, likes: ['luna', 'bella', 'coco', 'nala'], dislikes: ['buddy', 'max', 'cooper', 'cleo', 'daisy'] },
-    // Active family with a yard, kids (Max, Buddy, Cooper, Simba)
-    { prefs: { wants_dog: 1.0, preferred_size: 'large', preferred_energy: 'high', apartment_friendly: false, has_kids: true, max_shedding: 'high', alone_tolerance_needed: 'low' }, likes: ['max', 'buddy', 'cooper', 'simba'], dislikes: ['luna', 'bella', 'coco'] },
-    // Apartment dweller who wants a small dog (Charlie, Oliver, Daisy)
-    { prefs: { wants_dog: 1.0, preferred_size: 'small', preferred_energy: 'low', apartment_friendly: true, has_kids: true, max_shedding: 'low', alone_tolerance_needed: 'medium' }, likes: ['charlie', 'oliver', 'daisy', 'teddy'], dislikes: ['luna', 'max', 'buddy'] },
-    // Quiet home, no kids, wants calm cat (Bella, Luna, Coco, Milo)
-    { prefs: { wants_dog: 0.0, preferred_size: 'small', preferred_energy: 'low', apartment_friendly: true, has_kids: false, max_shedding: 'medium', alone_tolerance_needed: 'high' }, likes: ['bella', 'luna', 'coco', 'milo'], dislikes: ['buddy', 'max', 'cooper', 'daisy'] },
-    // Outdoorsy jogger who wants high-energy dog (Max, Cooper)
-    { prefs: { wants_dog: 1.0, preferred_size: 'large', preferred_energy: 'high', apartment_friendly: false, has_kids: false, max_shedding: 'medium', alone_tolerance_needed: 'low' }, likes: ['max', 'cooper'], dislikes: ['luna', 'bella', 'charlie'] },
-    // Family looking for friendly medium dog (Charlie, Bailey, Teddy)
-    { prefs: { wants_dog: 1.0, preferred_size: 'medium', preferred_energy: 'medium', apartment_friendly: true, has_kids: true, max_shedding: 'low', alone_tolerance_needed: 'medium' }, likes: ['charlie', 'bailey', 'teddy', 'buddy'], dislikes: ['luna', 'cleo'] },
-    // Senior person, wants calm small pet (Luna, Nala, Oliver, Daisy)
-    { prefs: { wants_dog: 0.2, preferred_size: 'small', preferred_energy: 'low', apartment_friendly: true, has_kids: false, max_shedding: 'low', alone_tolerance_needed: 'high' }, likes: ['luna', 'nala', 'oliver', 'daisy'], dislikes: ['max', 'buddy', 'cooper'] },
-    // Young professional, apartment, gentle dog (Buddy, Bailey, Teddy)
-    { prefs: { wants_dog: 1.0, preferred_size: 'medium', preferred_energy: 'medium', apartment_friendly: true, has_kids: false, max_shedding: 'high', alone_tolerance_needed: 'medium' }, likes: ['buddy', 'bailey', 'teddy'], dislikes: ['luna', 'bella'] },
-    // Mixed family, open to either species (Charlie, Luna, Simba, Bailey)
-    { prefs: { wants_dog: 0.5, preferred_size: 'medium', preferred_energy: 'medium', apartment_friendly: true, has_kids: true, max_shedding: 'low', alone_tolerance_needed: 'medium' }, likes: ['charlie', 'luna', 'simba', 'bailey'], dislikes: ['max', 'cooper'] },
-    // Remote worker who wants a dog companion (Buddy, Max, Daisy)
-    { prefs: { wants_dog: 1.0, preferred_size: 'large', preferred_energy: 'medium', apartment_friendly: false, has_kids: false, max_shedding: 'medium', alone_tolerance_needed: 'low' }, likes: ['buddy', 'max', 'daisy'], dislikes: ['luna', 'bella'] },
+    // 1. HARD CAT PERSON: Only wants cats, hates dogs (Luna, Coco, Nala, Bella)
+    {
+        prefs: { wants_dog: 0.0, preferred_size: 'small', preferred_energy: 'low', apartment_friendly: true, has_kids: false, max_shedding: 'low', alone_tolerance_needed: 'high' },
+        likes: ['luna', 'coco', 'nala', 'bella'],
+        dislikes: ['buddy', 'max', 'charlie', 'daisy', 'cooper', 'oliver']
+    },
+    // 2. SOFT CAT PERSON: Prefers cats, but traits match Daisy/Oliver (Luna, Coco, Daisy, Oliver)
+    {
+        prefs: { wants_dog: 0.2, preferred_size: 'small', preferred_energy: 'low', apartment_friendly: true, has_kids: true, max_shedding: 'low', alone_tolerance_needed: 'high' },
+        likes: ['luna', 'coco', 'daisy', 'oliver'],
+        dislikes: ['max', 'buddy', 'cooper', 'cleo']
+    },
+    // 3. HARD DOG PERSON: Only wants dogs, ignores cats
+    {
+        prefs: { wants_dog: 1.0, preferred_size: 'large', preferred_energy: 'high', apartment_friendly: false, has_kids: true, max_shedding: 'high', alone_tolerance_needed: 'low' },
+        likes: ['max', 'buddy', 'cooper'],
+        dislikes: ['luna', 'bella', 'coco', 'nala', 'milo']
+    },
+    // 4. SOFT DOG PERSON: Wants dog, but might take a high-energy cat (Simba, Cleo)
+    {
+        prefs: { wants_dog: 0.8, preferred_size: 'medium', preferred_energy: 'high', apartment_friendly: true, has_kids: true, max_shedding: 'medium', alone_tolerance_needed: 'medium' },
+        likes: ['charlie', 'bailey', 'simba', 'cleo'],
+        dislikes: ['luna', 'bella', 'coco']
+    },
+    // 5. APARTMENT CALM (Cat query fallback)
+    {
+        prefs: { wants_dog: 0.0, preferred_size: 'small', preferred_energy: 'low', apartment_friendly: true, has_kids: false, max_shedding: 'medium', alone_tolerance_needed: 'high' },
+        likes: ['bella', 'luna', 'coco', 'milo', 'nala'],
+        dislikes: ['max', 'buddy', 'cooper', 'charlie']
+    },
+    // 6. FAMILY SMALL (Daisy/Teddy/Oliver)
+    {
+        prefs: { wants_dog: 1.0, preferred_size: 'small', preferred_energy: 'medium', apartment_friendly: true, has_kids: true, max_shedding: 'low', alone_tolerance_needed: 'high' },
+        likes: ['daisy', 'teddy', 'oliver', 'charlie'],
+        dislikes: ['max', 'buddy', 'luna', 'bella']
+    },
+    // 7. BALANCED MIX (Open to all)
+    {
+        prefs: { wants_dog: 0.5, preferred_size: 'medium', preferred_energy: 'medium', apartment_friendly: true, has_kids: true, max_shedding: 'low', alone_tolerance_needed: 'medium' },
+        likes: ['charlie', 'luna', 'bailey', 'simba', 'teddy'],
+        dislikes: ['max', 'cooper', 'cleo']
+    }
 ];
 
 // ── Build training samples ────────────────────────────────────────

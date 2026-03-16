@@ -814,6 +814,13 @@ document.addEventListener('DOMContentLoaded', () => {
   updateRecommendations();
 });
 
+// Fallback in case PawML takes a moment to load
+window.addEventListener('load', () => {
+  if (document.getElementById('home-ml-recommendations')?.classList.contains('hidden')) {
+    updateRecommendations();
+  }
+});
+
 /* ──────────────────────
    ML RECOMMENDATIONS
 ────────────────────── */
@@ -827,9 +834,9 @@ function updateRecommendations() {
     return;
   }
 
-  // Derive the active profile to use for ranking
-  // If user hasn't run the AI Match yet, use their "Likes" to build a profile
-  // If they have both, we blend them.
+  // Ensure container is visible if PawML is present
+  container.classList.remove('hidden');
+
   const profileToUse = deriveEffectiveProfile();
 
   if (!profileToUse) {
@@ -867,8 +874,6 @@ function updateRecommendations() {
       </div>
     </div>
   `).join('');
-
-  container.classList.remove('hidden');
 }
 
 /**

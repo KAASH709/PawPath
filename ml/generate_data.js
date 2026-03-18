@@ -27,12 +27,17 @@ const SHEDDING_MAP = { low: 0, medium: 0.5, high: 1 };
 const ALONE_MAP = { low: 0, medium: 0.5, high: 1 };
 
 /**
- * Converts a pet object into a 9-element numeric vector.
- * [species, size, energy, apartment_friendly, good_with_kids, shedding, alone_tolerance]
+ * Converts a pet object into a 12-element numeric vector.
+ * [is_dog, is_cat, is_rabbit, is_guinea_pig, is_hamster, is_terrapin, size, energy, apartment_friendly, good_with_kids, shedding, alone_tolerance]
  */
 function encodePet(pet) {
     return [
-        SPECIES_MAP[pet.species] ?? 0.5,
+        pet.species === 'dog' ? 1 : 0,
+        pet.species === 'cat' ? 1 : 0,
+        pet.species === 'rabbit' ? 1 : 0,
+        pet.species === 'guinea_pig' ? 1 : 0,
+        pet.species === 'hamster' ? 1 : 0,
+        pet.species === 'terrapin' ? 1 : 0,
         SIZE_MAP[pet.size] ?? 0.5,
         ENERGY_MAP[pet.energy] ?? 0.5,
         pet.apartment_friendly ? 1 : 0,
@@ -43,12 +48,16 @@ function encodePet(pet) {
 }
 
 /**
- * Converts a user-preference object into the same 7-element schema.
- * Any unknown/null field defaults to 0.5 (neutral).
+ * Converts a user-preference object into the same 12-element schema.
  */
 function encodeUser(prefs) {
     return [
-        prefs.wants_dog !== undefined ? Number(prefs.wants_dog) : 0.5,
+        prefs.wants_dog !== undefined ? Number(prefs.wants_dog) : 0,
+        prefs.wants_cat !== undefined ? Number(prefs.wants_cat) : 0,
+        prefs.wants_rabbit !== undefined ? Number(prefs.wants_rabbit) : 0,
+        prefs.wants_guinea_pig !== undefined ? Number(prefs.wants_guinea_pig) : 0,
+        prefs.wants_hamster !== undefined ? Number(prefs.wants_hamster) : 0,
+        prefs.wants_terrapin !== undefined ? Number(prefs.wants_terrapin) : 0,
         SIZE_MAP[prefs.preferred_size] ?? 0.5,
         ENERGY_MAP[prefs.preferred_energy] ?? 0.5,
         prefs.apartment_friendly !== undefined ? Number(prefs.apartment_friendly) : 0.5,
@@ -102,7 +111,7 @@ const PETS = [
 // ---------------------------------------------------------------------------
 
 // Number of synthetic users to generate – can be overridden via .env
-const SYNTH_USER_COUNT = parseInt(process.env.SYNTH_USER_COUNT, 10) || 150;
+const SYNTH_USER_COUNT = parseInt(process.env.SYNTH_USER_COUNT, 10) || 50;
 // Compatibility threshold for a pet to be considered "liked" by a synthetic user
 const POSITIVE_THRESHOLD = parseFloat(process.env.POSITIVE_THRESHOLD) || 0.5;
 
@@ -121,7 +130,10 @@ function mapToCategory(value, low, medium, high) {
 function generateSyntheticUser() {
     // Pick a random primary species focus
     const favoredSpecies = SPECIES_LIST[Math.floor(Math.random() * SPECIES_LIST.length)];
-    const wDog = SPECIES_MAP[favoredSpecies]; // match the format app.js sends 
+
+    // We can simulate an occasional user who "kind of" likes a second species,
+    // but typically they strongly prefer the favored species.
+    const secondarySpecies = (Math.random() < 0.2) ? SPECIES_LIST[Math.floor(Math.random() * SPECIES_LIST.length)] : favoredSpecies;
 
     const prefSizeNum = Math.random(); // 0‑1
     const prefEnergyNum = Math.random();
@@ -129,7 +141,12 @@ function generateSyntheticUser() {
     const aloneNum = Math.random();
 
     return {
-        wants_dog: wDog, // Float representing the species mapped
+        wants_dog: (favoredSpecies === 'dog' ? 1 : (secondarySpecies === 'dog' ? 0.5 : 0)),
+        wants_cat: (favoredSpecies === 'cat' ? 1 : (secondarySpecies === 'cat' ? 0.5 : 0)),
+        wants_rabbit: (favoredSpecies === 'rabbit' ? 1 : (secondarySpecies === 'rabbit' ? 0.5 : 0)),
+        wants_guinea_pig: (favoredSpecies === 'guinea_pig' ? 1 : (secondarySpecies === 'guinea_pig' ? 0.5 : 0)),
+        wants_hamster: (favoredSpecies === 'hamster' ? 1 : (secondarySpecies === 'hamster' ? 0.5 : 0)),
+        wants_terrapin: (favoredSpecies === 'terrapin' ? 1 : (secondarySpecies === 'terrapin' ? 0.5 : 0)),
         favored_species_string: favoredSpecies, // Used purely for ground truth label below
         preferred_size: mapToCategory(prefSizeNum, 'small', 'medium', 'large'),
         preferred_energy: mapToCategory(prefEnergyNum, 'low', 'medium', 'high'),

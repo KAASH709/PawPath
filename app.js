@@ -1160,23 +1160,26 @@ function deriveEffectiveProfile() {
     // JS Sets preserve insertion order, so the last items are the most recent
     const likedPets = Array.from(heartedPets).map(id => PETS.find(p => p.id === id)).filter(Boolean);
 
-    const SPECIES_VALS = { dog: 1, cat: 0, rabbit: 0.25, guinea_pig: 0.5, hamster: 0.75, terrapin: 0.85 };
     const SIZE_VALS = { small: 0, medium: 0.5, large: 1 };
     const ENERGY_VALS = { low: 0, medium: 0.5, high: 1 };
     const SHED_VALS = { low: 0, medium: 0.5, high: 1 };
 
     // Calculate a weighted average (recency bias)
-    // We give the most recent pets more "votes"
     let totalWeight = 0;
-    const avgTraits = { wants_dog: 0, preferred_size: 0, preferred_energy: 0, apartment_friendly: 0, has_kids: 0, max_shedding: 0, alone_tolerance_needed: 0 };
+    const avgTraits = { wants_dog: 0, wants_cat: 0, wants_rabbit: 0, wants_guinea_pig: 0, wants_hamster: 0, wants_terrapin: 0, preferred_size: 0, preferred_energy: 0, apartment_friendly: 0, has_kids: 0, max_shedding: 0, alone_tolerance_needed: 0 };
 
     likedPets.forEach((p, index) => {
-      // Weight increases as we get to more recent pets
       // Last half of likes get double weight
       const weight = (index >= likedPets.length / 2) ? 2 : 1;
       totalWeight += weight;
 
-      avgTraits.wants_dog += (SPECIES_VALS[p.type] ?? 0.5) * weight;
+      avgTraits.wants_dog += (p.type === 'dog' || p.species === 'dog' ? 1 : 0) * weight;
+      avgTraits.wants_cat += (p.type === 'cat' || p.species === 'cat' ? 1 : 0) * weight;
+      avgTraits.wants_rabbit += (p.type === 'rabbit' || p.species === 'rabbit' ? 1 : 0) * weight;
+      avgTraits.wants_guinea_pig += (p.type === 'guinea_pig' || p.species === 'guinea_pig' ? 1 : 0) * weight;
+      avgTraits.wants_hamster += (p.type === 'hamster' || p.species === 'hamster' ? 1 : 0) * weight;
+      avgTraits.wants_terrapin += (p.type === 'terrapin' || p.species === 'terrapin' ? 1 : 0) * weight;
+
       avgTraits.preferred_size += (SIZE_VALS[p.size] ?? 0.5) * weight;
       avgTraits.preferred_energy += (ENERGY_VALS[p.energy] ?? 0.5) * weight;
       avgTraits.apartment_friendly += (p.apartment_friendly ? 1 : 0) * weight;
@@ -1190,7 +1193,12 @@ function deriveEffectiveProfile() {
     // Convert numeric averages to profile (keeping floats for binary traits to allow mixed recommendations)
     if (!finalProfile) {
       finalProfile = {
-        wants_dog: avgTraits.wants_dog, // float 0-1
+        wants_dog: avgTraits.wants_dog,
+        wants_cat: avgTraits.wants_cat,
+        wants_rabbit: avgTraits.wants_rabbit,
+        wants_guinea_pig: avgTraits.wants_guinea_pig,
+        wants_hamster: avgTraits.wants_hamster,
+        wants_terrapin: avgTraits.wants_terrapin,
         preferred_size: avgTraits.preferred_size < 0.33 ? 'small' : avgTraits.preferred_size > 0.66 ? 'large' : 'medium',
         preferred_energy: avgTraits.preferred_energy < 0.33 ? 'low' : avgTraits.preferred_energy > 0.66 ? 'high' : 'medium',
         apartment_friendly: avgTraits.apartment_friendly,
@@ -1200,7 +1208,13 @@ function deriveEffectiveProfile() {
       };
     } else {
       // Blend AI profile with manual likes (70% weight to manual likes)
-      finalProfile.wants_dog = (finalProfile.wants_dog === true ? 1 : (finalProfile.wants_dog === false ? 0 : finalProfile.wants_dog)) * 0.3 + avgTraits.wants_dog * 0.7;
+      finalProfile.wants_dog = (finalProfile.wants_dog || 0) * 0.3 + avgTraits.wants_dog * 0.7;
+      finalProfile.wants_cat = (finalProfile.wants_cat || 0) * 0.3 + avgTraits.wants_cat * 0.7;
+      finalProfile.wants_rabbit = (finalProfile.wants_rabbit || 0) * 0.3 + avgTraits.wants_rabbit * 0.7;
+      finalProfile.wants_guinea_pig = (finalProfile.wants_guinea_pig || 0) * 0.3 + avgTraits.wants_guinea_pig * 0.7;
+      finalProfile.wants_hamster = (finalProfile.wants_hamster || 0) * 0.3 + avgTraits.wants_hamster * 0.7;
+      finalProfile.wants_terrapin = (finalProfile.wants_terrapin || 0) * 0.3 + avgTraits.wants_terrapin * 0.7;
+
       finalProfile.apartment_friendly = (finalProfile.apartment_friendly ? 1 : 0) * 0.3 + avgTraits.apartment_friendly * 0.7;
       finalProfile.has_kids = (finalProfile.has_kids ? 1 : 0) * 0.3 + avgTraits.has_kids * 0.7;
 
@@ -1291,9 +1305,13 @@ async function runAIMatch() {
     // ── ML INTEGRATION ─────────────────────────────────────────
     // Save preferences to profile and update home recommendations
     if (data.preferences) {
-      const SPECIES_VALS = { dog: 1, cat: 0, rabbit: 0.25, guinea_pig: 0.5, hamster: 0.75, terrapin: 0.85 };
       userProfile = {
-        wants_dog: SPECIES_VALS[data.preferences.species] ?? 0.5,
+        wants_dog: data.preferences.species === 'dog' ? 1 : 0,
+        wants_cat: data.preferences.species === 'cat' ? 1 : 0,
+        wants_rabbit: data.preferences.species === 'rabbit' ? 1 : 0,
+        wants_guinea_pig: data.preferences.species === 'guinea_pig' ? 1 : 0,
+        wants_hamster: data.preferences.species === 'hamster' ? 1 : 0,
+        wants_terrapin: data.preferences.species === 'terrapin' ? 1 : 0,
         preferred_size: data.preferences.size || 'medium',
         preferred_energy: data.preferences.energy || 'medium',
         apartment_friendly: data.preferences.apartment_friendly || false,

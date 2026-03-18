@@ -34,7 +34,7 @@ const sigmoidDeriv = x => { const s = sigmoid(x); return s * (1 - s); };
 const rand = () => (Math.random() - 0.5) * 0.5;
 
 // ── MLP definition ────────────────────────────────────────────────
-const LAYERS = [14, 16, 16, 1];
+const LAYERS = [24, 16, 16, 1];
 
 function buildNetwork() {
   const weights = [];
@@ -88,9 +88,9 @@ function predict(net, input) {
 }
 
 // ── Training loop ─────────────────────────────────────────────────
-const EPOCHS = 1500;
+const EPOCHS = 500;
 const LR = 0.05;
-const LOG_EVERY = 500;
+const LOG_EVERY = 100;
 
 const net = buildNetwork();
 console.log(`🧠  Training MLP (${LAYERS.join(' → ')}) for ${EPOCHS} epochs…\n`);
@@ -111,12 +111,13 @@ for (let epoch = 1; epoch <= EPOCHS; epoch++) {
 
 // ── Sanity checks ─────────────────────────────────────────────────
 console.log('\n📊  Sanity checks:');
-const catPerson = [0, 0, 0, 1, 0, 0, 1];
-const lunaVec = [0, 0, 0, 1, 0, 0, 1];
-const maxVec = [1, 1, 1, 0, 1, 0.5, 0];
-const activeFam = [1, 1, 1, 0, 1, 1, 0];
-const charlieVec = [1, 0.5, 0.5, 1, 1, 0, 0.5];
-const aptPerson = [1, 0.5, 0.5, 1, 1, 0, 0.5];
+// 12-element: [dog, cat, rabbit, gp, ham, terr, size, energy, apt, kids, shed, alone]
+const catPerson = [0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0];
+const lunaVec = [0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1];
+const maxVec = [1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0.5, 0];
+const activeFam = [1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0];
+const aptPerson = [1, 0, 0, 0, 0, 0, 0.5, 0.5, 1, 1, 0, 0.5];
+const charlieVec = [1, 0, 0, 0, 0, 0, 0.5, 0.5, 1, 1, 0, 0.5];
 
 console.log(`   Cat person + Luna  (expect HIGH):       ${(predict(net, [...catPerson, ...lunaVec]) * 100).toFixed(1)}%`);
 console.log(`   Cat person + Max   (expect LOW):        ${(predict(net, [...catPerson, ...maxVec]) * 100).toFixed(1)}%`);
@@ -148,7 +149,12 @@ const exportCode = `/**
 
   function encodeUser(p) {
     return [
-      p.wants_dog !== undefined ? Number(p.wants_dog) : 0.5,
+      p.wants_dog !== undefined ? Number(p.wants_dog) : 0,
+      p.wants_cat !== undefined ? Number(p.wants_cat) : 0,
+      p.wants_rabbit !== undefined ? Number(p.wants_rabbit) : 0,
+      p.wants_guinea_pig !== undefined ? Number(p.wants_guinea_pig) : 0,
+      p.wants_hamster !== undefined ? Number(p.wants_hamster) : 0,
+      p.wants_terrapin !== undefined ? Number(p.wants_terrapin) : 0,
       SIZE_MAP[p.preferred_size]          ?? 0.5,
       ENERGY_MAP[p.preferred_energy]      ?? 0.5,
       p.apartment_friendly !== undefined ? Number(p.apartment_friendly) : 0.5,
@@ -160,7 +166,12 @@ const exportCode = `/**
 
   function encodePet(pet) {
     return [
-      SPECIES_MAP[pet.species ?? pet.type] ?? 0.5,
+      pet.species === 'dog' ? 1 : 0,
+      pet.species === 'cat' ? 1 : 0,
+      pet.species === 'rabbit' ? 1 : 0,
+      pet.species === 'guinea_pig' ? 1 : 0,
+      pet.species === 'hamster' ? 1 : 0,
+      pet.species === 'terrapin' ? 1 : 0,
       SIZE_MAP[pet.size]                   ?? 0.5,
       ENERGY_MAP[pet.energy]               ?? 0.5,
       pet.apartment_friendly ? 1 : 0,

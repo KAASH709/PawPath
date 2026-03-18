@@ -165,13 +165,14 @@ const exportCode = `/**
   }
 
   function encodePet(pet) {
+    const s = pet.species ?? pet.type ?? '';
     return [
-      pet.species === 'dog' ? 1 : 0,
-      pet.species === 'cat' ? 1 : 0,
-      pet.species === 'rabbit' ? 1 : 0,
-      pet.species === 'guinea_pig' ? 1 : 0,
-      pet.species === 'hamster' ? 1 : 0,
-      pet.species === 'terrapin' ? 1 : 0,
+      s === 'dog' ? 1 : 0,
+      s === 'cat' ? 1 : 0,
+      s === 'rabbit' ? 1 : 0,
+      s === 'guinea_pig' ? 1 : 0,
+      s === 'hamster' ? 1 : 0,
+      s === 'terrapin' ? 1 : 0,
       SIZE_MAP[pet.size]                   ?? 0.5,
       ENERGY_MAP[pet.energy]               ?? 0.5,
       pet.apartment_friendly ? 1 : 0,

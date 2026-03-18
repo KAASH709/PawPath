@@ -2556,16 +2556,40 @@ input[type="checkbox"] {
   font-weight: 600;
 }
 
-.cm-btn {
+.emergency-call {
   margin-left: auto;
-  background: var(--c-primary);
-  color: white;
-  border-radius: 10px;
+  background: #C83010;
+  /* brighter red for contrast */
+  color: #fff;
+  border: none;
+  border-radius: 8px;
   padding: 8px 14px;
-  font-size: 11px;
+  font-family: 'Syne', sans-serif;
   font-weight: 700;
-  flex-shrink: 0;
-  transition: all 0.2s;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* Hero title styling for better readability */
+.hero-title {
+  color: var(--c-text);
+  font-weight: 800;
+  font-size: 18px;
+  line-height: 1.3;
+}
+
+/* Consistent styling for "Use My Current Location" buttons */
+.btn-use-location {
+  background: #C83010;
+  color: #fff;
+  border: 1.5px solid var(--red);
+  font-size: 13px;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 14px;
+  box-shadow: none;
+  cursor: pointer;
 }
 
 .cm-btn:hover {
@@ -2876,15 +2900,18 @@ input[type="checkbox"] {
 .aim-results.hidden {
   display: none !important;
 }
+
 /* ── ANIMAL CRUELTY CARD ── */
 .cruelty-card {
   background: linear-gradient(135deg, rgba(232, 64, 26, 0.08) 0%, rgba(232, 64, 26, 0.03) 100%);
   border-color: rgba(232, 64, 26, 0.15) !important;
 }
-.cruelty-card .amc-title { 
-  color: #e8401a; 
+
+.cruelty-card .amc-title {
+  color: #e8401a;
 }
-.cruelty-card .amc-icon { 
-  background: rgba(232, 64, 26, 0.1); 
-  border-radius: 12px; 
+
+.cruelty-card .amc-icon {
+  background: rgba(232, 64, 26, 0.1);
+  border-radius: 12px;
 }

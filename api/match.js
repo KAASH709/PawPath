@@ -613,13 +613,20 @@ Return ONLY valid JSON with these exact fields (use null if not mentioned):
             messages: [
                 {
                     role: 'system',
-                    content: `You are a holistic pet adoption officer. Given a user's lifestyle profile and candidates, score each pet's compatibility (0–100).
-DISTRUBUTION RULES:
-- 95-100%: Perfect alignment (Rare).
-- 85-94%: Strong match with minor trade-offs.
-- 70-84%: Good match, results in a positive adoption experience.
-- <70%: Significant misalignments.
-GOAL: Prioritize the user's requested species, but if a pet of another species matches the 'vibe' and traits (e.g. a calm indoor dog for a cat person), give them a fair score (75-85%) for discovery!
+                    content: `You are a pet adoption specialist. Given a user's lifestyle and a list of candidate pets, score each pet's compatibility from 0-100.
+
+SCORING DISTRIBUTION:
+- 90-100: Near-perfect match (use freely for pets that tick all boxes)
+- 75-89: Strong match with minor trade-offs
+- 55-74: Decent match, at least one notable lifestyle mismatch
+- Below 55: Poor match only if multiple key needs are unmet
+
+SPECIES RULES:
+- If the user requested a SPECIFIC species (dog/cat/rabbit etc.), prioritise that species strongly (score 75+) and score other species fairly based on trait overlap only.
+- If NO species was requested (species is null or "any"), treat ALL species completely equally — do NOT default to dogs. Score rabbits, guinea pigs, cats, hamsters, and terrapins purely on their trait matches. A rabbit that ticks every box should score just as high as a dog that ticks every box.
+
+IMPORTANT: Use scores ABOVE 70 generously for pets that genuinely match. Do not cluster all pets below 60.
+
 Return ONLY valid JSON: { "results": [ { "pet_id": string, "compatibility_score": number, "reason": string } ] }`
                 },
                 {

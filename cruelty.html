@@ -289,6 +289,26 @@
     font-family: 'DM Sans', sans-serif; padding: 2px 4px;
   }
 
+  /* ── USE LOCATION BUTTON ── */
+  .btn-use-location {
+    background: #C83010;
+    color: #fff;
+    border: 1.5px solid var(--red);
+    font-size: 13px;
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 14px;
+    box-shadow: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+    transition: all 0.2s;
+    width: 100%;
+  }
+  .btn-use-location:active {
+    transform: scale(0.98);
+  }
+
   /* ── SUBMIT BUTTON ── */
   .btn-submit {
     width: 100%; padding: 16px;
@@ -741,7 +761,7 @@
           <input type="text" placeholder="E.g. Tanjong Pagar MRT area, near Block 5…" id="lfAddress" oninput="updateAlertPreview()">
         </div>
       </div>
-      <button class="btn-submit" style="background:var(--card2);color:var(--text-soft);border:1.5px solid var(--border);font-size:13px;padding:10px;border-radius:var(--radius-sm);margin-bottom:14px;box-shadow:none;" onclick="useGPS()">
+      <button class="btn-use-location" onclick="useGPS()">
         📡 Use My Current Location
       </button>
       <div class="dt-row">

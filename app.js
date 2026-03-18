@@ -164,7 +164,229 @@ const PETS = [
     urgent: false,
     energy: 'high', apartment_friendly: true,
     good_with_kids: false, shedding: 'low', alone_tolerance: 'medium'
+  },
+  {
+    id: 'kopi', name: 'Kopi', breed: 'Singapore Special', type: 'dog', size: 'medium',
+    age: '2 years', weight: '18 kg', gender: 'Male', img: 'assets/kopi.jpg',
+    status: 'Available', vaccinated: 'Yes', neutered: 'Yes',
+    tags: ['Street-smart', 'Loyal', 'Energetic'],
+    tempTags: ['Brave', 'Alert', 'Affectionate'],
+    desc: 'Kopi is a classic Singapore Special—intelligent, resilient, and incredibly loyal. He loves long walks and will be your best friend for life.',
+    urgent: false,
+    energy: 'high', apartment_friendly: true,
+    good_with_kids: true, shedding: 'medium', alone_tolerance: 'medium'
+  },
+  {
+    id: 'mochi', name: 'Mochi', breed: 'Local Kitten', type: 'cat', size: 'small',
+    age: '4 months', weight: '1.5 kg', gender: 'Female', img: 'assets/mochi.jpg',
+    status: 'Available', vaccinated: 'Yes', neutered: 'No',
+    tags: ['Playful', 'Tiny', 'Curious'],
+    tempTags: ['Energetic', 'Sweet', 'Social'],
+    desc: 'Mochi is a bundle of joy! This tiny kitten loves chasing yarn and climbing everything she can find. She will need a family that can keep up with her energy.',
+    urgent: false,
+    energy: 'high', apartment_friendly: true,
+    good_with_kids: true, shedding: 'low', alone_tolerance: 'low'
+  },
+  {
+    id: 'hoppy', name: 'Hoppy', breed: 'Mixed Breed Rabbit', type: 'rabbit', size: 'small',
+    age: '1 year', weight: '2 kg', gender: 'Male', img: 'assets/hoppy.jpg',
+    status: 'Available', vaccinated: 'Yes', neutered: 'Yes',
+    tags: ['Gentle', 'Loves hay', 'Shy'],
+    tempTags: ['Quiet', 'Observant', 'Sweet'],
+    desc: 'Hoppy is a gentle rabbit who enjoys a quiet environment and plenty of fresh hay. He can be a bit shy at first but warms up with gentle handling.',
+    urgent: false,
+    energy: 'low', apartment_friendly: true,
+    good_with_kids: true, shedding: 'medium', alone_tolerance: 'medium'
+  },
+  {
+    id: 'bao', name: 'Bao', breed: 'Smooth-haired Guinea Pig', type: 'guinea_pig', size: 'small',
+    age: '8 months', weight: '0.9 kg', gender: 'Male', img: 'assets/bao.jpg',
+    status: 'Available', vaccinated: 'No', neutered: 'No',
+    tags: ['Social', 'Loves greens', 'Vocal'],
+    tempTags: ['Hungry', 'Cheerful', 'Talkative'],
+    desc: 'Bao is a very social guinea pig who will squeak loudly whenever he hears the fridge open! He loves his leafy greens and enjoys being around people.',
+    urgent: false,
+    energy: 'medium', apartment_friendly: true,
+    good_with_kids: true, shedding: 'low', alone_tolerance: 'low'
+  },
+  {
+    id: 'rex_snr', name: 'Rex', breed: 'German Shepherd Mix', type: 'dog', size: 'large',
+    age: '9 years', weight: '30 kg', gender: 'Male', img: 'assets/rex.jpg',
+    status: 'Available', vaccinated: 'Yes', neutered: 'Yes',
+    tags: ['Senior', 'Calm', 'Gentle giant'],
+    tempTags: ['Wise', 'Steady', 'Loving'],
+    desc: 'Rex is a mature gentleman who just wants a quiet spot to nap. He is very calm on the leash and loves gentle head scratches. Perfect for a relaxed household.',
+    urgent: false,
+    energy: 'low', apartment_friendly: false,
+    good_with_kids: true, shedding: 'high', alone_tolerance: 'high'
+  },
+  {
+    id: 'truffle', name: 'Truffle', breed: 'Long-haired Cross', type: 'cat', size: 'medium',
+    age: '3 years', weight: '4.2 kg', gender: 'Female', img: 'assets/truffle.jpg',
+    status: 'Available', vaccinated: 'Yes', neutered: 'Yes',
+    tags: ['Regal', 'Cuddly', 'Needs grooming'],
+    tempTags: ['Elegant', 'Soft', 'Affectionate'],
+    desc: 'Truffle is a beautiful long-haired cat with a very affectionate personality. She loves being brushed and will reward you with constant purring.',
+    urgent: false,
+    energy: 'low', apartment_friendly: true,
+    good_with_kids: false, shedding: 'high', alone_tolerance: 'medium'
+  },
+  {
+    id: 'speedy', name: 'Speedy', breed: 'Dwarf Hamster', type: 'hamster', size: 'small',
+    age: '6 months', weight: '0.05 kg', gender: 'Male', img: 'assets/speedy.jpg',
+    status: 'Available', vaccinated: 'No', neutered: 'No',
+    tags: ['Active', 'Nocturnal', 'Small'],
+    tempTags: ['Fast', 'Busy', 'Cute'],
+    desc: 'Speedy lives up to his name! He is incredibly active at night and loves running on his wheel or digging in his sand bath.',
+    urgent: false,
+    energy: 'high', apartment_friendly: true,
+    good_with_kids: false, shedding: 'none', alone_tolerance: 'high'
+  },
+  {
+    id: 'shelly', name: 'Shelly', breed: 'Red-eared Slider', type: 'terrapin', size: 'small',
+    age: '5 years', weight: '0.5 kg', gender: 'Female', img: 'assets/shelly.jpg',
+    status: 'Available', vaccinated: 'No', neutered: 'No',
+    tags: ['Independent', 'Loves basking', 'Quiet'],
+    tempTags: ['Sun-seeker', 'Low-maintenance', 'Steady'],
+    desc: 'Shelly is a low-maintenance companion who enjoys basking under her heat lamp and swimming in her tank. She is very independent and quiet.',
+    urgent: false,
+    energy: 'low', apartment_friendly: true,
+    good_with_kids: true, shedding: 'none', alone_tolerance: 'high'
+  },
+  {
+    id: 'lola', name: 'Lola', breed: 'Singapore Special', type: 'dog', size: 'medium',
+    age: '4 years', weight: '16 kg', gender: 'Female', img: 'assets/lola.jpg',
+    status: 'Available', vaccinated: 'Yes', neutered: 'Yes',
+    tags: ['Sensitive', 'Shy', 'Sweet nature'],
+    tempTags: ['Patient', 'Quiet', 'Timid'],
+    desc: 'Lola is a shy Singapore Special who needs a patient owner to help her come out of her shell. Once she trusts you, she is the sweetest dog you will ever meet.',
+    urgent: false,
+    energy: 'medium', apartment_friendly: true,
+    good_with_kids: false, shedding: 'medium', alone_tolerance: 'medium'
+  },
+  {
+    id: 'shadow', name: 'Shadow', breed: 'Local Tabby', type: 'cat', size: 'medium',
+    age: '12 years', weight: '4.5 kg', gender: 'Male', img: 'assets/shadow.jpg',
+    status: 'Available', vaccinated: 'Yes', neutered: 'Yes',
+    tags: ['Senior', 'Wise', 'Quiet'],
+    tempTags: ['Chill', 'Napper', 'Gentle'],
+    desc: 'Shadow is a wise old tabby who has seen it all. He is very quiet and spends most of his day napping in the sun. He is perfect for someone looking for a low-energy companion.',
+    urgent: false,
+    energy: 'low', apartment_friendly: true,
+    good_with_kids: true, shedding: 'medium', alone_tolerance: 'high'
+  },
+  {
+    id: 'brownie', name: 'Brownie', breed: 'Singapore Special', type: 'dog', size: 'medium',
+    age: '3 years', weight: '20 kg', gender: 'Male', img: 'assets/brownie.jpg',
+    status: 'Available', vaccinated: 'Yes', neutered: 'Yes',
+    tags: ['Energetic', 'Playful', 'Loves fetch'],
+    tempTags: ['Sociable', 'Bouncy', 'Loyal'],
+    desc: 'Brownie is an active Singapore Special who never tires of playing fetch. He is super sociable and gets along great with other dogs.',
+    urgent: false,
+    energy: 'high', apartment_friendly: true,
+    good_with_kids: true, shedding: 'medium', alone_tolerance: 'medium'
+  },
+  {
+    id: 'snowy', name: 'Snowy', breed: 'Local White Cat', type: 'cat', size: 'medium',
+    age: '2 years', weight: '4 kg', gender: 'Female', img: 'assets/snowy.jpg',
+    status: 'Available', vaccinated: 'Yes', neutered: 'Yes',
+    tags: ['Calm', 'Indoor', 'Gentle'],
+    tempTags: ['Quiet', 'Soft', 'Affectionate'],
+    desc: 'Snowy is a beautiful all-white cat who loves nothing more than lounging in a sunny spot all day. She is very gentle and perfect for a quiet home.',
+    urgent: false,
+    energy: 'low', apartment_friendly: true,
+    good_with_kids: true, shedding: 'medium', alone_tolerance: 'high'
+  },
+  {
+    id: 'nibbles', name: 'Nibbles', breed: 'Netherland Dwarf Mix', type: 'rabbit', size: 'small',
+    age: '1.5 years', weight: '1.2 kg', gender: 'Male', img: 'assets/nibbles.jpg',
+    status: 'Available', vaccinated: 'Yes', neutered: 'Yes',
+    tags: ['Tiny', 'Active', 'Loves hay'],
+    tempTags: ['Fast', 'Cute', 'Spirited'],
+    desc: 'Nibbles is a tiny bundle of energy! Despite his size, he has a big personality and loves exploring his surroundings. He is very fond of Timothy hay.',
+    urgent: false,
+    energy: 'medium', apartment_friendly: true,
+    good_with_kids: true, shedding: 'low', alone_tolerance: 'medium'
+  },
+  {
+    id: 'cookie', name: 'Cookie', breed: 'Rex Guinea Pig', type: 'guinea_pig', size: 'small',
+    age: '1 year', weight: '1 kg', gender: 'Female', img: 'assets/cookie.jpg',
+    status: 'Available', vaccinated: 'No', neutered: 'No',
+    tags: ['Curly fur', 'Social', 'Vocal'],
+    tempTags: ['Sweet', 'Chatty', 'Soft'],
+    desc: 'Cookie has the softest curly fur you have ever felt. She is a very vocal girl who will wheek loudly the moment she hears vegetables being prepared!',
+    urgent: false,
+    energy: 'medium', apartment_friendly: true,
+    good_with_kids: true, shedding: 'low', alone_tolerance: 'low'
+  },
+  {
+    id: 'bear', name: 'Bear', breed: 'Chow Chow Mix', type: 'dog', size: 'large',
+    age: '5 years', weight: '26 kg', gender: 'Male', img: 'assets/bear.jpg',
+    status: 'Available', vaccinated: 'Yes', neutered: 'Yes',
+    tags: ['Fluffy', 'Independent', 'Loyal'],
+    tempTags: ['Stoic', 'Protective', 'Calm'],
+    desc: 'Bear is a majestic Chow Chow mix with a thick, fluffy coat. He is somewhat independent but fiercely loyal to those he trusts. Best in an experienced home.',
+    urgent: false,
+    energy: 'low', apartment_friendly: false,
+    good_with_kids: false, shedding: 'high', alone_tolerance: 'high'
+  },
+  {
+    id: 'ginger_kit', name: 'Ginger', breed: 'Local Orange Tabby', type: 'cat', size: 'small',
+    age: '5 months', weight: '1.8 kg', gender: 'Female', img: 'assets/ginger_kit.jpg',
+    status: 'Available', vaccinated: 'Yes', neutered: 'No',
+    tags: ['Mischievous', 'Climber', 'Kitten'],
+    tempTags: ['Playful', 'Tiny', 'Brave'],
+    desc: 'Ginger is a classic orange tabby kitten with a mischievous streak. She loves climbing to the highest point in the room to survey her kingdom.',
+    urgent: false,
+    energy: 'high', apartment_friendly: true,
+    good_with_kids: true, shedding: 'medium', alone_tolerance: 'low'
+  },
+  {
+    id: 'flash', name: 'Flash', breed: 'Roborovski Hamster', type: 'hamster', size: 'small',
+    age: '4 months', weight: '0.03 kg', gender: 'Male', img: 'assets/flash.jpg',
+    status: 'Available', vaccinated: 'No', neutered: 'No',
+    tags: ['Fast', 'Small', 'Curious'],
+    tempTags: ['Speedy', 'Active', 'Observant'],
+    desc: 'Flash is a tiny Robo hamster known for his incredible speed. He is very active at night and is fascinating to watch as he scurries through tunnels.',
+    urgent: false,
+    energy: 'high', apartment_friendly: true,
+    good_with_kids: false, shedding: 'none', alone_tolerance: 'high'
+  },
+  {
+    id: 'tank', name: 'Tank', breed: 'Malayan Box Turtle', type: 'terrapin', size: 'small',
+    age: '8 years', weight: '0.8 kg', gender: 'Male', img: 'assets/tank.jpg',
+    status: 'Available', vaccinated: 'No', neutered: 'No',
+    tags: ['Slow', 'Steady', 'Low-maintenance'],
+    tempTags: ['Quiet', 'Hard-shell', 'Resilient'],
+    desc: 'Tank is a Malayan Box Turtle who lives up to his name. He is very steady and quiet, spending his days between the water and his favorite basking spot.',
+    urgent: false,
+    energy: 'low', apartment_friendly: true,
+    good_with_kids: true, shedding: 'none', alone_tolerance: 'high'
+  },
+  {
+    id: 'pepper', name: 'Pepper', breed: 'Singapore Special Puppy', type: 'dog', size: 'small',
+    age: '6 months', weight: '8 kg', gender: 'Female', img: 'assets/pepper_pup.jpg',
+    status: 'Available', vaccinated: 'Yes', neutered: 'No',
+    tags: ['Bouncy', 'Needs training', 'Affectionate'],
+    tempTags: ['Sweet', 'Eager', 'Puppy'],
+    desc: 'Pepper is a smart and bouncy puppy who is eager to learn. She needs a family that can provide consistent training and plenty of socialization.',
+    urgent: false,
+    energy: 'high', apartment_friendly: true,
+    good_with_kids: true, shedding: 'medium', alone_tolerance: 'low'
+  },
+  /*
+  {
+    id: 'misty_cat', name: 'Misty', breed: 'Russian Blue Mix', type: 'cat', size: 'medium',
+    age: '4 years', weight: '4.5 kg', gender: 'Female', img: 'assets/misty_cat.jpg',
+    status: 'Available', vaccinated: 'Yes', neutered: 'Yes',
+    tags: ['Elegant', 'Quiet', 'Silver-grey'],
+    tempTags: ['Reserved', 'Graceful', 'Soft'],
+    desc: 'Misty is an elegant cat with a beautiful silver-grey coat. She is a bit reserved at first but very graceful and affectionate once she settles in.',
+    urgent: false,
+    energy: 'low', apartment_friendly: true,
+    good_with_kids: false, shedding: 'low', alone_tolerance: 'high'
   }
+  */
 ];
 
 let currentPet = null;
@@ -287,14 +509,30 @@ function updateNav(screenId) {
 /* ──────────────────────
    BROWSE & FILTER
 ────────────────────── */
-function renderPetGrid(filter = 'all') {
+function renderPetGrid(filter = 'all', searchQuery = '') {
   const grid = document.getElementById('pet-grid');
-  const filtered = filter === 'all' ? PETS : PETS.filter(p => {
-    if (filter === 'dog') return p.type === 'dog';
-    if (filter === 'cat') return p.type === 'cat';
-    if (filter === 'small') return p.size === 'small' || p.type === 'cat';
-    return true;
-  });
+
+  let filtered = PETS;
+
+  // Apply category filter
+  if (filter !== 'all') {
+    filtered = filtered.filter(p => {
+      if (filter === 'dog') return p.type === 'dog';
+      if (filter === 'cat') return p.type === 'cat';
+      if (['rabbit', 'guinea_pig', 'hamster', 'terrapin'].includes(filter)) return p.type === filter;
+      return true;
+    });
+  }
+
+  // Apply search query
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    filtered = filtered.filter(p =>
+      p.name.toLowerCase().includes(q) ||
+      p.breed.toLowerCase().includes(q) ||
+      p.type.toLowerCase().includes(q)
+    );
+  }
 
   grid.innerHTML = filtered.map(p => `
     <div class="pet-grid-card" onclick="viewPet('${p.id}')">
@@ -318,17 +556,53 @@ function renderPetGrid(filter = 'all') {
   `).join('');
 }
 
+function handleSearch() {
+  const query = document.getElementById('search-input').value;
+  renderPetGrid(currentFilter, query);
+}
+
+function renderSavedPets() {
+  const list = document.getElementById('saved-pets-list');
+  if (!list) return;
+
+  const saved = Array.from(heartedPets).reverse().map(id => PETS.find(p => p.id === id)).filter(Boolean);
+
+  if (saved.length === 0) {
+    list.innerHTML = `
+      <div style="width: 100%; text-align: center; color: #888; padding: 24px 0; font-size: 14px;">
+        You haven't saved any pets yet.<br/>Browse and tap the heart icon to save them here!
+      </div>
+    `;
+    return;
+  }
+
+  list.innerHTML = saved.map(p => `
+    <div class="pet-card" onclick="viewPet('${p.id}')">
+      <div class="pet-card-img-wrap">
+        <img src="${p.img}" alt="${p.name}" class="pet-card-img" />
+        <button class="heart-btn liked" id="heart-${p.id}" onclick="event.stopPropagation();toggleHeart('${p.id}')">♥</button>
+        <div class="pet-badge ${p.urgent ? 'urgent' : ''}">${p.status}</div>
+      </div>
+      <div class="pet-card-info">
+        <div class="pet-card-name">${p.name}</div>
+        <div class="pet-card-meta">${p.type === 'dog' ? '🐶' : '🐱'} ${p.breed} · ${p.age}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
 function setFilter(btn, filter) {
   currentFilter = filter;
-  document.querySelectorAll('.browse-filters .chip').forEach(c => c.classList.remove('chip-active'));
+  document.querySelectorAll('.browse-filters .chip, .browse-controls .chip').forEach(c => c.classList.remove('chip-active'));
   btn.classList.add('chip-active');
-  renderPetGrid(filter);
+  const query = document.getElementById('search-input') ? document.getElementById('search-input').value : '';
+  renderPetGrid(filter, query);
 }
 
 function filterAndBrowse(filter) {
   currentFilter = filter;
   // Update chip on browse screen
-  document.querySelectorAll('.browse-filters .chip').forEach(c => {
+  document.querySelectorAll('.browse-filters .chip, .browse-controls .chip').forEach(c => {
     c.classList.toggle('chip-active', c.dataset.filter === filter);
   });
   renderPetGrid(filter);
@@ -345,7 +619,6 @@ function viewPet(petId) {
 
   document.getElementById('detail-img').src = pet.img;
   document.getElementById('detail-img').alt = pet.name;
-  document.getElementById('gallery-img-main').src = pet.img;
   document.getElementById('detail-name').textContent = pet.name;
   document.getElementById('detail-sub').textContent = `${pet.breed} · ${pet.gender} · ${pet.age}`;
   document.getElementById('detail-status').textContent = pet.status;
@@ -374,11 +647,11 @@ function viewPet(petId) {
 }
 
 function switchTab(tab) {
-  ['about', 'medical', 'gallery'].forEach(t => {
+  ['about', 'medical'].forEach(t => {
     document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== tab);
   });
   document.querySelectorAll('.dtab').forEach((btn, i) => {
-    btn.classList.toggle('active', ['about', 'medical', 'gallery'][i] === tab);
+    btn.classList.toggle('active', ['about', 'medical'][i] === tab);
   });
 }
 
@@ -506,29 +779,26 @@ function toggleHeart(petId) {
     heartedPets.add(petId);
   }
 
-  // Update home cards
-  const homeHeart = document.getElementById(`heart-${petId}`);
-  if (homeHeart) {
-    homeHeart.textContent = heartedPets.has(petId) ? '♥' : '♡';
-    homeHeart.classList.toggle('liked', heartedPets.has(petId));
-  }
-  // Update grid cards
-  const gridHeart = document.getElementById(`heart-${petId}-grid`);
-  if (gridHeart) {
-    gridHeart.textContent = heartedPets.has(petId) ? '♥' : '♡';
-    gridHeart.classList.toggle('liked', heartedPets.has(petId));
-  }
-  // Update detail
-  const detailHeart = document.getElementById('detail-heart');
-  if (detailHeart && currentPet === petId) {
-    detailHeart.textContent = heartedPets.has(petId) ? '♥' : '♡';
-    detailHeart.classList.toggle('liked', heartedPets.has(petId));
-  }
-
-  showToast(heartedPets.has(petId) ? `${petId.charAt(0).toUpperCase() + petId.slice(1)} saved to wishlist ❤️` : 'Removed from wishlist');
-
-  // Persist hearted pets
+  // Save to persistence
   localStorage.setItem('pawpath_hearts', JSON.stringify(Array.from(heartedPets)));
+
+  // Re-derive the ML profile based on new likes
+  deriveEffectiveProfile();
+
+  // Update UI everywhere
+  document.querySelectorAll(`#heart-${petId}, #heart-${petId}-grid`).forEach(btn => {
+    btn.textContent = heartedPets.has(petId) ? '♥' : '♡';
+    btn.classList.toggle('liked', heartedPets.has(petId));
+  });
+
+  if (currentPet === petId && document.getElementById('detail-heart')) {
+    document.getElementById('detail-heart').textContent = heartedPets.has(petId) ? '♥' : '♡';
+    document.getElementById('detail-heart').classList.toggle('liked', heartedPets.has(petId));
+  }
+
+  // Reload saved pets section
+  renderSavedPets();
+  showToast(heartedPets.has(petId) ? `${petId.charAt(0).toUpperCase() + petId.slice(1)} saved to wishlist ❤️` : 'Removed from wishlist');
 
   // Update ML recommendations based on new heart state
   updateRecommendations();
@@ -773,6 +1043,7 @@ function sign_out() {
   // Refresh UI
   renderPetGrid('all');
   updateRecommendations();
+  renderSavedPets(); // Also update saved pets on sign out
 
   showToast('Signed out! Session cleared.');
   goScreen('screen-home');
@@ -782,7 +1053,8 @@ function sign_out() {
    INIT
 ────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
-  renderPetGrid('all');
+  renderPetGrid();
+  renderSavedPets();
   renderCalendar('calendar-mini');
   renderCalendar('calendar-interview');
   renderCalendar('calendar-homecheck');
@@ -888,6 +1160,7 @@ function deriveEffectiveProfile() {
     // JS Sets preserve insertion order, so the last items are the most recent
     const likedPets = Array.from(heartedPets).map(id => PETS.find(p => p.id === id)).filter(Boolean);
 
+    const SPECIES_VALS = { dog: 1, cat: 0, rabbit: 0.25, guinea_pig: 0.5, hamster: 0.75, terrapin: 0.85 };
     const SIZE_VALS = { small: 0, medium: 0.5, large: 1 };
     const ENERGY_VALS = { low: 0, medium: 0.5, high: 1 };
     const SHED_VALS = { low: 0, medium: 0.5, high: 1 };
@@ -903,7 +1176,7 @@ function deriveEffectiveProfile() {
       const weight = (index >= likedPets.length / 2) ? 2 : 1;
       totalWeight += weight;
 
-      avgTraits.wants_dog += (p.type === 'dog' ? 1 : 0) * weight;
+      avgTraits.wants_dog += (SPECIES_VALS[p.type] ?? 0.5) * weight;
       avgTraits.preferred_size += (SIZE_VALS[p.size] ?? 0.5) * weight;
       avgTraits.preferred_energy += (ENERGY_VALS[p.energy] ?? 0.5) * weight;
       avgTraits.apartment_friendly += (p.apartment_friendly ? 1 : 0) * weight;
@@ -1018,8 +1291,9 @@ async function runAIMatch() {
     // ── ML INTEGRATION ─────────────────────────────────────────
     // Save preferences to profile and update home recommendations
     if (data.preferences) {
+      const SPECIES_VALS = { dog: 1, cat: 0, rabbit: 0.25, guinea_pig: 0.5, hamster: 0.75, terrapin: 0.85 };
       userProfile = {
-        wants_dog: data.preferences.species === 'dog',
+        wants_dog: SPECIES_VALS[data.preferences.species] ?? 0.5,
         preferred_size: data.preferences.size || 'medium',
         preferred_energy: data.preferences.energy || 'medium',
         apartment_friendly: data.preferences.apartment_friendly || false,

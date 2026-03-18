@@ -88,7 +88,7 @@ function predict(net, input) {
 }
 
 // ── Training loop ─────────────────────────────────────────────────
-const EPOCHS = 4000;
+const EPOCHS = 1500;
 const LR = 0.05;
 const LOG_EVERY = 500;
 
@@ -140,7 +140,7 @@ const exportCode = `/**
 (function (global) {
   'use strict';
 
-  const SPECIES_MAP  = { dog: 1, cat: 0 };
+  const SPECIES_MAP = { dog: 1, cat: 0, rabbit: 0.25, guinea_pig: 0.5, hamster: 0.75, terrapin: 0.85 };
   const SIZE_MAP     = { small: 0, medium: 0.5, large: 1 };
   const ENERGY_MAP   = { low: 0, medium: 0.5, high: 1 };
   const SHEDDING_MAP = { low: 0, medium: 0.5, high: 1 };
@@ -186,7 +186,9 @@ const exportCode = `/**
 
   const PawML = {
     /**
-     * @param {object} userPrefs  { wants_dog, preferred_size, preferred_energy,
+     * @param {object} userPrefs  { preferred_species, preferred_size, preferred_energy,
+     *                              apartment_friendly, has_kids, max_shedding,
+     *                              alone_tolerance_needed }
      *                              apartment_friendly, has_kids, max_shedding,
      *                              alone_tolerance_needed }
      * @param {object} pet        pet object from app.js PETS array

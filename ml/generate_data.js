@@ -20,7 +20,7 @@ const path = require('path');
 // ── Feature encoding ──────────────────────────────────────────────
 // Every categorical value is mapped to a number in [0, 1].
 
-const SPECIES_MAP = { dog: 1, cat: 0 };
+const SPECIES_MAP = { dog: 1, cat: 0, rabbit: 0.25, guinea_pig: 0.5, hamster: 0.75, terrapin: 0.85 };
 const SIZE_MAP = { small: 0, medium: 0.5, large: 1 };
 const ENERGY_MAP = { low: 0, medium: 0.5, high: 1 };
 const SHEDDING_MAP = { low: 0, medium: 0.5, high: 1 };
@@ -64,7 +64,7 @@ const PETS = [
     { id: 'luna', species: 'cat', size: 'small', energy: 'low', apartment_friendly: true, good_with_kids: false, shedding: 'low', alone_tolerance: 'high' },
     { id: 'max', species: 'dog', size: 'large', energy: 'high', apartment_friendly: false, good_with_kids: true, shedding: 'medium', alone_tolerance: 'low' },
     { id: 'bella', species: 'cat', size: 'small', energy: 'low', apartment_friendly: true, good_with_kids: false, shedding: 'medium', alone_tolerance: 'high' },
-    { id: 'charlie', species: 'dog', species: 'dog', size: 'medium', energy: 'medium', apartment_friendly: true, good_with_kids: true, shedding: 'low', alone_tolerance: 'medium' },
+    { id: 'charlie', species: 'dog', size: 'medium', energy: 'medium', apartment_friendly: true, good_with_kids: true, shedding: 'low', alone_tolerance: 'medium' },
     { id: 'daisy', species: 'dog', size: 'small', energy: 'low', apartment_friendly: true, good_with_kids: true, shedding: 'medium', alone_tolerance: 'high' },
     { id: 'milo', species: 'cat', size: 'small', energy: 'medium', apartment_friendly: true, good_with_kids: false, shedding: 'medium', alone_tolerance: 'high' },
     { id: 'cooper', species: 'dog', size: 'large', energy: 'high', apartment_friendly: false, good_with_kids: true, shedding: 'high', alone_tolerance: 'low' },
@@ -74,79 +74,130 @@ const PETS = [
     { id: 'bailey', species: 'dog', size: 'medium', energy: 'medium', apartment_friendly: true, good_with_kids: true, shedding: 'high', alone_tolerance: 'medium' },
     { id: 'nala', species: 'cat', size: 'small', energy: 'low', apartment_friendly: true, good_with_kids: false, shedding: 'medium', alone_tolerance: 'high' },
     { id: 'teddy', species: 'dog', size: 'small', energy: 'medium', apartment_friendly: true, good_with_kids: true, shedding: 'low', alone_tolerance: 'high' },
-    { id: 'cleo', species: 'cat', size: 'small', energy: 'high', apartment_friendly: true, good_with_kids: false, shedding: 'low', alone_tolerance: 'medium' }
+    { id: 'cleo', species: 'cat', size: 'small', energy: 'high', apartment_friendly: true, good_with_kids: false, shedding: 'low', alone_tolerance: 'medium' },
+    { id: 'kopi', species: 'dog', size: 'medium', energy: 'high', apartment_friendly: true, good_with_kids: true, shedding: 'medium', alone_tolerance: 'medium' },
+    { id: 'mochi', species: 'cat', size: 'small', energy: 'high', apartment_friendly: true, good_with_kids: true, shedding: 'low', alone_tolerance: 'low' },
+    { id: 'hoppy', species: 'rabbit', size: 'small', energy: 'low', apartment_friendly: true, good_with_kids: true, shedding: 'medium', alone_tolerance: 'medium' },
+    { id: 'bao', species: 'guinea_pig', size: 'small', energy: 'medium', apartment_friendly: true, good_with_kids: true, shedding: 'low', alone_tolerance: 'low' },
+    { id: 'rex_snr', species: 'dog', size: 'large', energy: 'low', apartment_friendly: false, good_with_kids: true, shedding: 'high', alone_tolerance: 'high' },
+    { id: 'truffle', species: 'cat', size: 'medium', energy: 'low', apartment_friendly: true, good_with_kids: false, shedding: 'high', alone_tolerance: 'medium' },
+    { id: 'speedy', species: 'hamster', size: 'small', energy: 'high', apartment_friendly: true, good_with_kids: false, shedding: 'none', alone_tolerance: 'high' },
+    { id: 'shelly', species: 'terrapin', size: 'small', energy: 'low', apartment_friendly: true, good_with_kids: true, shedding: 'none', alone_tolerance: 'high' },
+    { id: 'lola', species: 'dog', size: 'medium', energy: 'medium', apartment_friendly: true, good_with_kids: false, shedding: 'medium', alone_tolerance: 'medium' },
+    { id: 'shadow', species: 'cat', size: 'medium', energy: 'low', apartment_friendly: true, good_with_kids: true, shedding: 'medium', alone_tolerance: 'high' },
+    { id: 'brownie', species: 'dog', size: 'medium', energy: 'high', apartment_friendly: true, good_with_kids: true, shedding: 'medium', alone_tolerance: 'medium' },
+    { id: 'snowy', species: 'cat', size: 'medium', energy: 'low', apartment_friendly: true, good_with_kids: true, shedding: 'medium', alone_tolerance: 'high' },
+    { id: 'nibbles', species: 'rabbit', size: 'small', energy: 'medium', apartment_friendly: true, good_with_kids: true, shedding: 'low', alone_tolerance: 'medium' },
+    { id: 'cookie', species: 'guinea_pig', size: 'small', energy: 'medium', apartment_friendly: true, good_with_kids: true, shedding: 'low', alone_tolerance: 'low' },
+    { id: 'bear', species: 'dog', size: 'large', energy: 'low', apartment_friendly: false, good_with_kids: false, shedding: 'high', alone_tolerance: 'high' },
+    { id: 'ginger_kit', species: 'cat', size: 'small', energy: 'high', apartment_friendly: true, good_with_kids: true, shedding: 'medium', alone_tolerance: 'low' },
+    { id: 'flash', species: 'hamster', size: 'small', energy: 'high', apartment_friendly: true, good_with_kids: false, shedding: 'none', alone_tolerance: 'high' },
+    { id: 'tank', species: 'terrapin', size: 'small', energy: 'low', apartment_friendly: true, good_with_kids: true, shedding: 'none', alone_tolerance: 'high' },
+    { id: 'pepper', species: 'dog', size: 'small', energy: 'high', apartment_friendly: true, good_with_kids: true, shedding: 'medium', alone_tolerance: 'low' },
+    { id: 'misty_cat', species: 'cat', size: 'medium', energy: 'low', apartment_friendly: true, good_with_kids: false, shedding: 'low', alone_tolerance: 'high' }
 ];
 
-// ── User-preference archetypes ────────────────────────────────────
-// We define representative user-preference profiles and for each
-// profile we specify which pets they would realistically like.
-const ARCHETYPES = [
-    // 1. HARD CAT PERSON: Strictly prefers these cats over ANY dogs, including Daisy.
-    {
-        prefs: { wants_dog: 0.0, preferred_size: 'small', preferred_energy: 'low', apartment_friendly: true, has_kids: false, max_shedding: 'low', alone_tolerance_needed: 'high' },
-        likes: ['luna', 'coco', 'bella', 'nala'],
-        dislikes: ['daisy', 'oliver', 'teddy', 'charlie', 'buddy', 'max', 'cooper']
-    },
-    // 2. SOFT CAT PERSON: Discovery enabled, but cats still win if they fit.
-    {
-        prefs: { wants_dog: 0.1, preferred_size: 'small', preferred_energy: 'low', apartment_friendly: true, has_kids: true, max_shedding: 'low', alone_tolerance_needed: 'high' },
-        likes: ['luna', 'coco', 'nala', 'bella'],
-        dislikes: ['max', 'buddy', 'cooper']
-    },
-    // 3. HARD DOG PERSON: Only wants dogs, ignores cats
-    {
-        prefs: { wants_dog: 1.0, preferred_size: 'large', preferred_energy: 'high', apartment_friendly: false, has_kids: true, max_shedding: 'high', alone_tolerance_needed: 'low' },
-        likes: ['max', 'buddy', 'cooper'],
-        dislikes: ['luna', 'bella', 'coco', 'nala', 'milo']
-    },
-    // 4. SOFT DOG PERSON: Wants dog, but might take a high-energy cat (Simba, Cleo)
-    {
-        prefs: { wants_dog: 0.9, preferred_size: 'medium', preferred_energy: 'high', apartment_friendly: true, has_kids: true, max_shedding: 'medium', alone_tolerance_needed: 'medium' },
-        likes: ['charlie', 'bailey', 'simba', 'cleo'],
-        dislikes: ['luna', 'bella', 'coco']
-    },
-    // 5. APARTMENT CALM (Cat query fallback)
-    {
-        prefs: { wants_dog: 0.0, preferred_size: 'small', preferred_energy: 'low', apartment_friendly: true, has_kids: false, max_shedding: 'medium', alone_tolerance_needed: 'high' },
-        likes: ['bella', 'luna', 'coco', 'milo', 'nala'],
-        dislikes: ['max', 'buddy', 'cooper', 'charlie', 'daisy']
-    },
-    // 6. FAMILY SMALL (Daisy/Teddy/Oliver)
-    {
-        prefs: { wants_dog: 1.0, preferred_size: 'small', preferred_energy: 'medium', apartment_friendly: true, has_kids: true, max_shedding: 'low', alone_tolerance_needed: 'high' },
-        likes: ['daisy', 'teddy', 'oliver', 'charlie'],
-        dislikes: ['max', 'buddy', 'luna', 'bella']
-    },
-    // 7. BALANCED MIX (Open to all)
-    {
-        prefs: { wants_dog: 0.5, preferred_size: 'medium', preferred_energy: 'medium', apartment_friendly: true, has_kids: true, max_shedding: 'low', alone_tolerance_needed: 'medium' },
-        likes: ['charlie', 'luna', 'bailey', 'simba', 'teddy'],
-        dislikes: ['max', 'cooper', 'cleo']
-    }
-];
+// ---------------------------------------------------------------------------
+// Synthetic User‑Pattern Generation (replaces the static ARCHETYPES block)
+// ---------------------------------------------------------------------------
 
-// ── Build training samples ────────────────────────────────────────
+// Number of synthetic users to generate – can be overridden via .env
+const SYNTH_USER_COUNT = parseInt(process.env.SYNTH_USER_COUNT, 10) || 5000;
+// Compatibility threshold for a pet to be considered "liked" by a synthetic user
+const POSITIVE_THRESHOLD = parseFloat(process.env.POSITIVE_THRESHOLD) || 0.5;
+
+/** Helper: sample a Dirichlet distribution with α = 1 (uniform) for 6 species */
+function sampleSpeciesPrefs() {
+    const draws = Array.from({ length: 6 }, () => Math.random());
+    const sum = draws.reduce((a, b) => a + b, 0);
+    return draws.map(v => v / sum);
+}
+
+/** Helper: map a numeric preference (0‑1) to a categorical value used by encodeUser */
+function mapToCategory(value, low, medium, high) {
+    if (value < 0.33) return low;
+    if (value < 0.66) return medium;
+    return high;
+}
+
+/** Generate a synthetic user preference object compatible with encodeUser */
+function generateSyntheticUser() {
+    const [wDog, wCat, wRabbit, wGuinea, wHamster, wTerrapin] = sampleSpeciesPrefs();
+    const prefSizeNum = Math.random(); // 0‑1
+    const prefEnergyNum = Math.random();
+    const sheddingNum = Math.random();
+    const aloneNum = Math.random();
+
+    return {
+        wants_dog: wDog,
+        wants_cat: wCat,
+        wants_rabbit: wRabbit,
+        wants_guinea_pig: wGuinea,
+        wants_hamster: wHamster,
+        wants_terrapin: wTerrapin,
+        preferred_size: mapToCategory(prefSizeNum, 'small', 'medium', 'large'),
+        preferred_energy: mapToCategory(prefEnergyNum, 'low', 'medium', 'high'),
+        apartment_friendly: Math.random() < 0.7, // most users live in apartments
+        has_kids: Math.random() < 0.4,
+        max_shedding: mapToCategory(sheddingNum, 'low', 'medium', 'high'),
+        alone_tolerance_needed: mapToCategory(aloneNum, 'low', 'medium', 'high')
+    };
+}
+
+/** Build a one‑hot species vector for a pet */
+function speciesVector(pet) {
+    return [
+        pet.species === 'dog' ? 1 : 0,
+        pet.species === 'cat' ? 1 : 0,
+        pet.species === 'rabbit' ? 1 : 0,
+        pet.species === 'guinea_pig' ? 1 : 0,
+        pet.species === 'hamster' ? 1 : 0,
+        pet.species === 'terrapin' ? 1 : 0,
+    ];
+}
+
+/** Compute a simple compatibility score between a user and a pet */
+function compatibilityScore(userPrefs, pet) {
+    const speciesPrefs = [
+        userPrefs.wants_dog ?? 0,
+        userPrefs.wants_cat ?? 0,
+        userPrefs.wants_rabbit ?? 0,
+        userPrefs.wants_guinea_pig ?? 0,
+        userPrefs.wants_hamster ?? 0,
+        userPrefs.wants_terrapin ?? 0,
+    ];
+    const petSpeciesVec = speciesVector(pet);
+    // dot‑product of species preferences
+    const dot = speciesPrefs.reduce((sum, val, i) => sum + val * petSpeciesVec[i], 0);
+    // optional: add small boost if energy/size match user preferences
+    const energyMatch = (userPrefs.preferred_energy === pet.energy) ? 0.1 : 0;
+    const sizeMatch = (userPrefs.preferred_size === pet.size) ? 0.1 : 0;
+    return dot + energyMatch + sizeMatch;
+}
+
+/** Generate synthetic users */
+const SYNTHETIC_USERS = Array.from({ length: SYNTH_USER_COUNT }, generateSyntheticUser);
+
+// ---------------------------------------------------------------------------
+// Build training samples from synthetic users (replaces ARCHETYPES loop)
+// ---------------------------------------------------------------------------
+
 const trainingData = [];
 
-ARCHETYPES.forEach(({ prefs, likes, dislikes }) => {
-    const userVec = encodeUser(prefs);
-
-    // Liked pets → label 0.92 (smoothing prevents saturation at 1.0)
-    likes.forEach(petId => {
-        const pet = PETS.find(p => p.id === petId);
-        if (!pet) return;
-        trainingData.push({ input: [...userVec, ...encodePet(pet)], output: [0.92] });
-    });
-
-    // Disliked pets → label 0.08 (smoothing prevents saturation at 0.0)
-    dislikes.forEach(petId => {
-        const pet = PETS.find(p => p.id === petId);
-        if (!pet) return;
-        trainingData.push({ input: [...userVec, ...encodePet(pet)], output: [0.08] });
+SYNTHETIC_USERS.forEach(userPrefs => {
+    const userVec = encodeUser(userPrefs);
+    PETS.forEach(pet => {
+        const score = compatibilityScore(userPrefs, pet);
+        const liked = score >= POSITIVE_THRESHOLD;
+        const outputVal = liked ? 0.92 : 0.08;
+        trainingData.push({ input: [...userVec, ...encodePet(pet)], output: [outputVal] });
     });
 });
 
-// ── Light augmentation: shuffle & duplicate with small noise ──────
+// ---------------------------------------------------------------------------
+// Light augmentation: shuffle & duplicate with small noise (unchanged)
+// ---------------------------------------------------------------------------
+
 function jitter(vec, amount = 0.05) {
     return vec.map(v => Math.min(1, Math.max(0, v + (Math.random() - 0.5) * amount)));
 }
@@ -156,10 +207,12 @@ trainingData.forEach(sample => {
     augmented.push({ input: jitter(sample.input), output: sample.output });
 });
 
-// Shuffle
 augmented.sort(() => Math.random() - 0.5);
 
-// ── Save ──────────────────────────────────────────────────────────
+// ---------------------------------------------------------------------------
+// Save
+// ---------------------------------------------------------------------------
+
 const outPath = path.join(__dirname, 'training_data.json');
 fs.writeFileSync(outPath, JSON.stringify(augmented, null, 2));
 console.log(`✅  Generated ${augmented.length} training samples → ${outPath}`);

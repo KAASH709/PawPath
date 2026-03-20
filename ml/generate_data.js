@@ -158,17 +158,77 @@ function generateSyntheticUser() {
 }
 
 /** Compute a simple compatibility score between a user and a pet */
+/** Compute a simple compatibility score between a user and a pet (0 to 1) */
 function compatibilityScore(userPrefs, pet) {
-    // Exact species match gives a base 0.8
-    const speciesMatch = (userPrefs.favored_species_string === pet.species) ? 0.8 : 0;
-    // Boost if energy/size match user preferences
-    const energyMatch = (userPrefs.preferred_energy === pet.energy) ? 0.1 : 0;
-    const sizeMatch = (userPrefs.preferred_size === pet.size) ? 0.1 : 0;
-    return speciesMatch + energyMatch + sizeMatch;
+    let score = 0;
+    let totalWeight = 0;
+
+    // 1. Species match (Weight: 10)
+    // If user explicitly wants this species (1.0), it's a huge boost.
+    // If they "kind of" want it (0.5), it's a medium boost.
+    const speciesField = `wants_${pet.species}`;
+    const speciesWeight = 10;
+    totalWeight += speciesWeight;
+    if (userPrefs[speciesField] !== undefined) {
+        score += userPrefs[speciesField] * speciesWeight;
+    }
+
+    // 2. Size (Weight: 2)
+    const sizeWeight = 2;
+    totalWeight += sizeWeight;
+    const prefSize = SIZE_MAP[userPrefs.preferred_size] ?? 0.5;
+    const petSize = SIZE_MAP[pet.size] ?? 0.5;
+    score += (1 - Math.abs(prefSize - petSize)) * sizeWeight;
+
+    // 3. Energy (Weight: 3)
+    const energyWeight = 3;
+    totalWeight += energyWeight;
+    const prefEnergy = ENERGY_MAP[userPrefs.preferred_energy] ?? 0.5;
+    const petEnergy = ENERGY_MAP[pet.energy] ?? 0.5;
+    score += (1 - Math.abs(prefEnergy - petEnergy)) * energyWeight;
+
+    // 4. Apartment Friendly (Weight: 2)
+    // Only matters if user HAS an apartment (requirement)
+    const aptWeight = 2;
+    totalWeight += aptWeight;
+    if (userPrefs.apartment_friendly) {
+        score += (pet.apartment_friendly ? 1 : 0) * aptWeight;
+    } else {
+        score += 1 * aptWeight; // Neutral if user doesn't care
+    }
+
+    // 5. Good with Kids (Weight: 2)
+    const kidsWeight = 2;
+    totalWeight += kidsWeight;
+    if (userPrefs.has_kids) {
+        score += (pet.good_with_kids ? 1 : 0) * kidsWeight;
+    } else {
+        score += 1 * kidsWeight; // Neutral if user doesn't care
+    }
+
+    // 6. Shedding (Weight: 1)
+    const shedWeight = 1;
+    totalWeight += shedWeight;
+    const maxShed = SHEDDING_MAP[userPrefs.max_shedding] ?? 0.5;
+    const petShed = SHEDDING_MAP[pet.shedding] ?? 0.5;
+    // Lower pet shedding than user's max is good.
+    if (petShed <= maxShed) score += 1 * shedWeight;
+    else score += (1 - (petShed - maxShed)) * shedWeight;
+
+    // 7. Alone Tolerance (Weight: 1)
+    const aloneWeight = 1;
+    totalWeight += aloneWeight;
+    const needAlone = ALONE_MAP[userPrefs.alone_tolerance_needed] ?? 0.5;
+    const petAlone = ALONE_MAP[pet.alone_tolerance] ?? 0.5;
+    if (petAlone >= needAlone) score += 1 * aloneWeight;
+    else score += (1 - (needAlone - petAlone)) * aloneWeight;
+
+    return score / totalWeight;
 }
 
 /** Generate synthetic users */
-const SYNTHETIC_USERS = Array.from({ length: SYNTH_USER_COUNT }, generateSyntheticUser);
+const SYNTH_USER_COUNT_FINAL = process.env.SYNTH_USER_COUNT ? parseInt(process.env.SYNTH_USER_COUNT, 10) : 300;
+const SYNTHETIC_USERS = Array.from({ length: SYNTH_USER_COUNT_FINAL }, generateSyntheticUser);
 
 // ---------------------------------------------------------------------------
 // Build training samples from synthetic users (replaces ARCHETYPES loop)
@@ -180,8 +240,8 @@ SYNTHETIC_USERS.forEach(userPrefs => {
     const userVec = encodeUser(userPrefs);
     PETS.forEach(pet => {
         const score = compatibilityScore(userPrefs, pet);
-        const liked = score >= POSITIVE_THRESHOLD;
-        const outputVal = liked ? 0.92 : 0.08;
+        // Use the actual score as the label (clamped for sigmoid output)
+        const outputVal = Math.min(0.98, Math.max(0.02, score));
         trainingData.push({ input: [...userVec, ...encodePet(pet)], output: [outputVal] });
     });
 });

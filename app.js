@@ -1305,19 +1305,28 @@ async function runAIMatch() {
     // ── ML INTEGRATION ─────────────────────────────────────────
     // Save preferences to profile and update home recommendations
     if (data.preferences) {
+      const p = data.preferences;
+      
+      // If species is 'any' or null, we treat all as 0.5 (neutral/open)
+      const isAny = p.species === 'any' || !p.species;
+      
       userProfile = {
-        wants_dog: data.preferences.species === 'dog' ? 1 : 0,
-        wants_cat: data.preferences.species === 'cat' ? 1 : 0,
-        wants_rabbit: data.preferences.species === 'rabbit' ? 1 : 0,
-        wants_guinea_pig: data.preferences.species === 'guinea_pig' ? 1 : 0,
-        wants_hamster: data.preferences.species === 'hamster' ? 1 : 0,
-        wants_terrapin: data.preferences.species === 'terrapin' ? 1 : 0,
-        preferred_size: data.preferences.size || 'medium',
-        preferred_energy: data.preferences.energy || 'medium',
-        apartment_friendly: data.preferences.apartment_friendly || false,
-        has_kids: data.preferences.good_with_kids || false,
-        max_shedding: data.preferences.shedding || 'medium',
-        alone_tolerance_needed: data.preferences.alone_tolerance || 'medium'
+        wants_dog: isAny ? 0.5 : (p.species === 'dog' ? 1 : 0),
+        wants_cat: isAny ? 0.5 : (p.species === 'cat' ? 1 : 0),
+        wants_rabbit: isAny ? 0.5 : (p.species === 'rabbit' ? 1 : 0),
+        wants_guinea_pig: isAny ? 0.5 : (p.species === 'guinea_pig' ? 1 : 0),
+        wants_hamster: isAny ? 0.5 : (p.species === 'hamster' ? 1 : 0),
+        wants_terrapin: isAny ? 0.5 : (p.species === 'terrapin' ? 1 : 0),
+        
+        preferred_size: p.size || 'medium',
+        preferred_energy: p.energy || 'medium',
+        
+        // Use 0.5 for neutral/unknown instead of defaulting to false(0)
+        apartment_friendly: p.apartment_friendly !== null ? (p.apartment_friendly ? 1 : 0) : 0.5,
+        has_kids: p.good_with_kids !== null ? (p.good_with_kids ? 1 : 0) : 0.5,
+        
+        max_shedding: p.shedding || 'medium',
+        alone_tolerance_needed: p.alone_tolerance || 'medium'
       };
 
       // Persist to localStorage

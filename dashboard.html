@@ -359,8 +359,28 @@ body::before {
   <div class="section">
     <div class="section-label">🚨 Open Cases</div>
     <div class="card-wrap">
-      <div class="case-list" id="caseList">
+      <div class="case-list" id="caseListOpen">
         <div class="empty-state">Loading cases...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INVESTIGATING CASES -->
+  <div class="section">
+    <div class="section-label">🔍 Investigating</div>
+    <div class="card-wrap">
+      <div class="case-list" id="caseListInvestigating">
+        <div class="empty-state">No cases under investigation</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESOLVED CASES -->
+  <div class="section">
+    <div class="section-label">✅ Resolved</div>
+    <div class="card-wrap">
+      <div class="case-list" id="caseListResolved">
+        <div class="empty-state">No resolved cases yet</div>
       </div>
     </div>
   </div>
@@ -445,9 +465,10 @@ async function loadRealData() {
       document.getElementById('hotspotBanner').classList.remove('show')
     }
 
-    // open cases list
-    const openCases = reports.filter(r => r.case_status !== 'resolved').slice(0, 10)
-    renderRealCases(openCases)
+    // render cases by status
+    renderRealCases(reports.filter(r => r.case_status === 'open' || !r.case_status), 'caseListOpen')
+    renderRealCases(reports.filter(r => r.case_status === 'investigating'), 'caseListInvestigating')
+    renderRealCases(reports.filter(r => r.case_status === 'resolved'), 'caseListResolved')
 
   } catch (err) {
     console.error('Failed to load data:', err)
@@ -477,10 +498,15 @@ function renderBreakdown(reports) {
 }
 
 // ── RENDER CASES ──────────────────────────────────
-function renderRealCases(reports) {
-  const list = document.getElementById('caseList')
+function renderRealCases(reports, containerId) {
+  const list = document.getElementById(containerId)
+  if (!list) return
+
   if (reports.length === 0) {
-    list.innerHTML = '<div class="empty-state">No open cases 🎉</div>'
+    const emptyMsg = containerId === 'caseListOpen' ? 'No open cases 🎉' : 
+                     containerId === 'caseListInvestigating' ? 'No investigations in progress' : 
+                     'No resolved cases yet'
+    list.innerHTML = `<div class="empty-state">${emptyMsg}</div>`
     return
   }
   list.innerHTML = reports.map(r => `

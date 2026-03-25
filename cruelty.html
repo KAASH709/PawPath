@@ -298,6 +298,7 @@
     color: #fff; box-shadow: 0 8px 24px rgba(232,52,26,.3);
   }
   .btn-submit.cruelty:hover { box-shadow: 0 12px 32px rgba(232,52,26,.45); transform: translateY(-1px); }
+  .btn-submit.cruelty:disabled { opacity: .6; transform: none; cursor: not-allowed; }
   .btn-submit.lost {
     background: linear-gradient(135deg, #2D2880, #1E1B4B);
     color: #fff; box-shadow: 0 8px 24px rgba(30,27,75,.25);
@@ -394,10 +395,46 @@
   .scan-text { font-size: 12px; color: var(--orange); font-weight: 600; font-family:'Syne',sans-serif; }
 
   .app-wrap { max-width: 430px; margin: 0 auto; min-height: 100vh; position: relative; }
+
+  /* ── SUCCESS SCREEN ── */
+  .success-screen {
+    display: none; position: fixed; inset: 0; z-index: 200;
+    background: var(--dark);
+    flex-direction: column; align-items: center; justify-content: center;
+    padding: 40px 24px; text-align: center;
+    animation: fadeUp .4s ease;
+  }
+  .success-screen.show { display: flex; }
+  .success-icon { font-size: 64px; margin-bottom: 16px; }
+  .success-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 24px; margin-bottom: 8px; }
+  .success-sub { font-size: 14px; color: var(--text-soft); line-height: 1.6; max-width: 280px; margin-bottom: 28px; }
+  .success-ref {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 12px 20px; font-size: 12px; color: var(--muted); margin-bottom: 24px;
+  }
+  .success-ref strong { font-family: 'Syne', sans-serif; color: var(--text); font-size: 14px; display: block; margin-top: 2px; }
+  .btn-back {
+    padding: 14px 32px; border-radius: var(--radius); border: 1.5px solid var(--border);
+    background: var(--card); font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: 14px; cursor: pointer; color: var(--text); transition: all .2s;
+  }
+  .btn-back:hover { background: var(--card2); }
 </style>
 </head>
 <body>
 <div class="app-wrap">
+
+  <!-- SUCCESS SCREEN -->
+  <div class="success-screen" id="successScreen">
+    <div class="success-icon">✅</div>
+    <div class="success-title">Report Submitted!</div>
+    <div class="success-sub">Your cruelty report has been sent to SPCA officers. They will follow up shortly.</div>
+    <div class="success-ref">
+      Reference number
+      <strong id="successRef">#SPC-—</strong>
+    </div>
+    <button class="btn-back" onclick="resetForm()">Submit Another Report</button>
+  </div>
 
   <!-- NAV -->
   <nav class="nav">
@@ -484,7 +521,7 @@
       </div>
     </div>
 
-    <!-- ★ NEW: INCIDENT CLASSIFICATION ★ -->
+    <!-- INCIDENT CLASSIFICATION -->
     <div class="section">
       <div class="section-label">⚠️ Incident Classification</div>
 
@@ -530,7 +567,6 @@
         </select>
       </div>
     </div>
-    <!-- ★ END NEW SECTION ★ -->
 
     <!-- LOCATION -->
     <div class="section">
@@ -545,7 +581,7 @@
       <button class="btn-use-location" onclick="useGPS()">📡 Use My Current Location</button>
       <div class="field">
         <div class="field-label">Postal Code</div>
-        <input type="text" placeholder="" maxlength="6">
+        <input type="text" id="postalCode" placeholder="" maxlength="6">
       </div>
     </div>
 
@@ -597,7 +633,7 @@
       </div>
       <div class="field" style="margin-top:12px">
         <div class="field-label">Animal Condition Details</div>
-        <textarea placeholder="Describe injuries, behaviour, or other observations about the animal's state…" style="height:72px"></textarea>
+        <textarea id="animalConditionDetails" placeholder="Describe injuries, behaviour, or other observations about the animal's state…" style="height:72px"></textarea>
       </div>
     </div>
 
@@ -606,7 +642,7 @@
       <div class="section-label">🕵️ Suspect Information</div>
       <div class="field">
         <div class="field-label">Suspect Description</div>
-        <textarea placeholder="Physical description, clothing, vehicle plate number, anything you remember…" style="height:72px"></textarea>
+        <textarea id="suspectDesc" placeholder="Physical description, clothing, vehicle plate number, anything you remember…" style="height:72px"></textarea>
       </div>
       <div class="field">
         <div class="field-label">Tags / Keywords</div>
@@ -622,24 +658,21 @@
       <div class="section-label">ℹ️ Additional Information</div>
       <div class="field">
         <div class="field-label">Other Details</div>
-        <textarea placeholder="Any other relevant information – witnesses, recurring incidents, context…" style="height:72px"></textarea>
+        <textarea id="otherDetails" placeholder="Any other relevant information – witnesses, recurring incidents, context…" style="height:72px"></textarea>
       </div>
       <div class="field">
         <div class="field-label">Your Contact (Optional)</div>
         <div class="input-with-icon">
           <span class="input-icon">📱</span>
-          <input type="tel" placeholder="+65">
+          <input type="tel" id="reporterContact" placeholder="+65">
         </div>
         <div class="helper">🔒 Kept confidential. Only used if officers need to follow up.</div>
       </div>
     </div>
 
-    <!-- ★ HIDDEN CASE STATUS — defaults to open on submit ★ -->
-    <input type="hidden" id="caseStatus" value="open">
-
     <div class="spacer"></div>
     <div style="padding:0 20px 20px">
-      <button class="btn-submit cruelty" onclick="submitReport('cruelty')">
+      <button class="btn-submit cruelty" id="submitCrueltyBtn" onclick="submitReport('cruelty')">
         🚨 Submit Cruelty Report
       </button>
     </div>
@@ -811,135 +844,148 @@
 </div>
 
 <script>
+// ── SUPABASE CONFIG ───────────────────────────────
+const SUPABASE_URL = 'https://xdgwcxbzvexswcrovjxw.supabase.co'
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhkZ3djeGJ6dmV4c3djcm92anh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDQzNDMsImV4cCI6MjA4OTcyMDM0M30.dLMAvORcsCujcDnEq2qek4ZwaHvcENCC-5A1aliUp0k'
+
+// ── TAB SWITCHING ─────────────────────────────────
 function switchTab(tab) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => {
-    b.classList.remove('active-cruelty','active-lost');
-  });
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'))
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-cruelty','active-lost'))
   if (tab === 'cruelty') {
-    document.getElementById('panel-cruelty').classList.add('active');
-    document.getElementById('tab-cruelty').classList.add('active-cruelty');
+    document.getElementById('panel-cruelty').classList.add('active')
+    document.getElementById('tab-cruelty').classList.add('active-cruelty')
   } else {
-    document.getElementById('panel-lost').classList.add('active');
-    document.getElementById('tab-lost').classList.add('active-lost');
+    document.getElementById('panel-lost').classList.add('active')
+    document.getElementById('tab-lost').classList.add('active-lost')
   }
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
-function handleDrag(e) { e.preventDefault(); document.getElementById('uploadZone').classList.add('drag'); }
-function handleDragLeave() { document.getElementById('uploadZone').classList.remove('drag'); }
+// ── FILE UPLOAD ───────────────────────────────────
+function handleDrag(e) { e.preventDefault(); document.getElementById('uploadZone').classList.add('drag') }
+function handleDragLeave() { document.getElementById('uploadZone').classList.remove('drag') }
 function handleDrop(e) {
-  e.preventDefault();
-  document.getElementById('uploadZone').classList.remove('drag');
-  const file = e.dataTransfer.files[0];
-  if (file) processMediaFile(file);
+  e.preventDefault()
+  document.getElementById('uploadZone').classList.remove('drag')
+  const file = e.dataTransfer.files[0]
+  if (file) processMediaFile(file)
 }
 function handleFileSelect(e) {
-  const file = e.target.files[0];
-  if (file) processMediaFile(file);
+  const file = e.target.files[0]
+  if (file) processMediaFile(file)
 }
 function processMediaFile(file) {
-  const zone = document.getElementById('uploadZone');
-  const scanOverlay = document.getElementById('scanOverlay');
-  scanOverlay.classList.add('active');
+  const zone = document.getElementById('uploadZone')
+  const scanOverlay = document.getElementById('scanOverlay')
+  scanOverlay.classList.add('active')
   setTimeout(() => {
-    scanOverlay.classList.remove('active');
-    zone.classList.add('has-file');
-    const reader = new FileReader();
+    scanOverlay.classList.remove('active')
+    zone.classList.add('has-file')
+    const reader = new FileReader()
     reader.onload = (ev) => {
-      const preview = document.getElementById('mediaPreview');
-      preview.innerHTML = `<button class="media-remove" onclick="removeMedia()">✕</button>`;
+      const preview = document.getElementById('mediaPreview')
+      preview.innerHTML = `<button class="media-remove" onclick="removeMedia()">✕</button>`
       if (file.type.startsWith('image/')) {
-        preview.innerHTML += `<img src="${ev.target.result}" alt="Preview">`;
+        preview.innerHTML += `<img src="${ev.target.result}" alt="Preview">`
       } else {
-        preview.innerHTML += `<video src="${ev.target.result}" controls></video>`;
+        preview.innerHTML += `<video src="${ev.target.result}" controls></video>`
       }
-      preview.style.display = 'block';
-    };
-    reader.readAsDataURL(file);
-    showAIAnalysis(file);
-  }, 1800);
+      preview.style.display = 'block'
+    }
+    reader.readAsDataURL(file)
+    showAIAnalysis(file)
+  }, 1800)
 }
 function removeMedia() {
-  document.getElementById('mediaPreview').style.display = 'none';
-  document.getElementById('mediaInput').value = '';
-  document.getElementById('aiCard').classList.remove('show');
-  document.getElementById('uploadZone').classList.remove('has-file');
+  document.getElementById('mediaPreview').style.display = 'none'
+  document.getElementById('mediaInput').value = ''
+  document.getElementById('aiCard').classList.remove('show')
+  document.getElementById('uploadZone').classList.remove('has-file')
 }
 
+// ── AI ANALYSIS SIMULATION ────────────────────────
 const scenarios = [
   { urgency: 'high', badge: '🔴 High Priority', tags: ['⚠️ Possible injury detected','🔗 Animal restrained','🐕 Dog identified','😡 Aggressive behaviour'], confidence: '94%' },
   { urgency: 'medium', badge: '🟠 Medium Priority', tags: ['👀 Suspicious behaviour','🐱 Cat identified','🏠 Residential area'], confidence: '81%' },
   { urgency: 'low', badge: '🟢 Low Priority', tags: ['🐕 Possible stray','🌳 Outdoor location','No immediate threat'], confidence: '73%' },
-];
+]
 function showAIAnalysis(file) {
-  const s = scenarios[Math.floor(Math.random() * scenarios.length)];
-  const badge = document.getElementById('urgencyBadge');
-  badge.className = 'urgency-badge ' + s.urgency;
-  badge.textContent = s.badge;
-  document.getElementById('aiConfidence').textContent = 'Confidence: ' + s.confidence;
-  const tagsEl = document.getElementById('aiTags');
-  tagsEl.innerHTML = s.tags.map((t,i) => `<span class="ai-tag${i<2?' flagged':''}">${t}</span>`).join('');
-  document.getElementById('aiCard').classList.add('show');
+  const s = scenarios[Math.floor(Math.random() * scenarios.length)]
+  const badge = document.getElementById('urgencyBadge')
+  badge.className = 'urgency-badge ' + s.urgency
+  badge.textContent = s.badge
+  document.getElementById('aiConfidence').textContent = 'Confidence: ' + s.confidence
+  const tagsEl = document.getElementById('aiTags')
+  tagsEl.innerHTML = s.tags.map((t,i) => `<span class="ai-tag${i<2?' flagged':''}">${t}</span>`).join('')
+  document.getElementById('aiCard').classList.add('show')
 }
 
+// ── GPS ───────────────────────────────────────────
 function useGPS() {
-  if (!navigator.geolocation) { showToast('GPS not available','error'); return; }
+  if (!navigator.geolocation) { showToast('GPS not available','error'); return }
   navigator.geolocation.getCurrentPosition(pos => {
-    const addr = document.getElementById('address') || document.getElementById('lfAddress');
-    if(addr) addr.value = `Singapore (${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)})`;
-    updateAlertPreview();
-    showToast('📡 Location detected!','success');
+    const addrEl = document.getElementById('address')
+    const lfAddrEl = document.getElementById('lfAddress')
+    const coords = `Singapore (${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)})`
+    if (addrEl && document.getElementById('panel-cruelty').classList.contains('active')) addrEl.value = coords
+    if (lfAddrEl && document.getElementById('panel-lost').classList.contains('active')) { lfAddrEl.value = coords; updateAlertPreview() }
+    showToast('📡 Location detected!','success')
   }, () => {
-    showToast('⚠️ Enable location permission','error');
-  });
+    showToast('⚠️ Enable location permission','error')
+  })
 }
 
+// ── PILL INPUT ────────────────────────────────────
 function addPill(e) {
   if (e.key === 'Enter') {
-    e.preventDefault();
-    const val = e.target.value.trim();
-    if (!val) return;
-    const pill = document.createElement('div');
-    pill.className = 'pill';
-    pill.innerHTML = `${val} <button onclick="this.parentElement.remove()">×</button>`;
-    document.getElementById('pillWrap').insertBefore(pill, e.target);
-    e.target.value = '';
+    e.preventDefault()
+    const val = e.target.value.trim()
+    if (!val) return
+    const pill = document.createElement('div')
+    pill.className = 'pill'
+    pill.innerHTML = `${val} <button onclick="this.parentElement.remove()">×</button>`
+    document.getElementById('pillWrap').insertBefore(pill, e.target)
+    e.target.value = ''
   }
 }
 
+// ── CHAR COUNTER ──────────────────────────────────
 function countChars(el, counterId) {
-  document.getElementById(counterId).textContent = el.value.length + ' / 500';
+  document.getElementById(counterId).textContent = el.value.length + ' / 500'
 }
 
+// ── LOST & FOUND MODE ─────────────────────────────
 function setLFMode(mode) {
-  document.getElementById('mode-lost').className = 'lf-mode-btn' + (mode==='lost'?' active-lost':'');
-  document.getElementById('mode-found').className = 'lf-mode-btn' + (mode==='found'?' active-found':'');
-  document.getElementById('lf-upload-label').textContent = mode==='lost' ? '📸 Photos of Your Pet' : '📸 Photo of Found Pet';
-  document.getElementById('lf-location-label').textContent = mode==='lost' ? '📍 Last Seen Location' : '📍 Where You Found It';
-  document.getElementById('lf-submit-btn').textContent = mode==='lost' ? '🐶 Submit Lost Pet Report' : '🤝 Submit Found Pet Report';
-  document.getElementById('lf-submit-btn').className = 'btn-submit ' + (mode==='lost' ? 'lost' : '');
-  if (mode === 'found') document.getElementById('lf-submit-btn').style.background = 'linear-gradient(135deg,#2ea855,#1e7a3e)';
-  else document.getElementById('lf-submit-btn').style.background = '';
+  document.getElementById('mode-lost').className = 'lf-mode-btn' + (mode==='lost'?' active-lost':'')
+  document.getElementById('mode-found').className = 'lf-mode-btn' + (mode==='found'?' active-found':'')
+  document.getElementById('lf-upload-label').textContent = mode==='lost' ? '📸 Photos of Your Pet' : '📸 Photo of Found Pet'
+  document.getElementById('lf-location-label').textContent = mode==='lost' ? '📍 Last Seen Location' : '📍 Where You Found It'
+  document.getElementById('lf-submit-btn').textContent = mode==='lost' ? '🐶 Submit Lost Pet Report' : '🤝 Submit Found Pet Report'
+  document.getElementById('lf-submit-btn').className = 'btn-submit ' + (mode==='lost' ? 'lost' : '')
+  if (mode === 'found') document.getElementById('lf-submit-btn').style.background = 'linear-gradient(135deg,#2ea855,#1e7a3e)'
+  else document.getElementById('lf-submit-btn').style.background = ''
 }
 
+// ── PET PHOTOS ────────────────────────────────────
 function addPetPhotos(e) {
-  const files = Array.from(e.target.files).slice(0, 6);
-  const strip = document.getElementById('photoStrip');
-  const add = document.getElementById('photoAdd');
-  strip.querySelectorAll('.photo-thumb').forEach(t => t.remove());
+  const files = Array.from(e.target.files).slice(0, 6)
+  const strip = document.getElementById('photoStrip')
+  const add = document.getElementById('photoAdd')
+  strip.querySelectorAll('.photo-thumb').forEach(t => t.remove())
   files.forEach(f => {
-    const reader = new FileReader();
+    const reader = new FileReader()
     reader.onload = ev => {
-      const thumb = document.createElement('div');
-      thumb.className = 'photo-thumb';
-      thumb.innerHTML = `<img src="${ev.target.result}" alt="">`;
-      strip.insertBefore(thumb, add);
-    };
-    reader.readAsDataURL(f);
-  });
+      const thumb = document.createElement('div')
+      thumb.className = 'photo-thumb'
+      thumb.innerHTML = `<img src="${ev.target.result}" alt="">`
+      strip.insertBefore(thumb, add)
+    }
+    reader.readAsDataURL(f)
+  })
 }
 
+// ── BREEDS ────────────────────────────────────────
 const breeds = {
   dog: ['Shiba Inu','Golden Retriever','Poodle','Chihuahua','Mixed Breed','Labrador'],
   cat: ['Persian','Tabby','Siamese','Bengal','Maine Coon','Mixed'],
@@ -947,54 +993,73 @@ const breeds = {
   bird: ['Budgerigar','Cockatiel','Parrot','Mynah'],
   hamster: ['Syrian','Dwarf','Roborovski'],
   other: []
-};
+}
 function updateBreeds() {
-  const sp = document.getElementById('petSpecies').value;
-  const chips = document.getElementById('breedChips');
-  chips.innerHTML = '';
-  (breeds[sp] || []).forEach(b => {
-    const c = document.createElement('div');
-    c.className = 'breed-chip';
-    c.textContent = b;
+  const sp = document.getElementById('petSpecies').value
+  const chips = document.getElementById('breedChips')
+  chips.innerHTML = ''
+  ;(breeds[sp] || []).forEach(b => {
+    const c = document.createElement('div')
+    c.className = 'breed-chip'
+    c.textContent = b
     c.onclick = () => {
-      chips.querySelectorAll('.breed-chip').forEach(x => x.classList.remove('selected'));
-      c.classList.add('selected');
-      document.getElementById('petBreed').value = b;
-    };
-    chips.appendChild(c);
-  });
+      chips.querySelectorAll('.breed-chip').forEach(x => x.classList.remove('selected'))
+      c.classList.add('selected')
+      document.getElementById('petBreed').value = b
+    }
+    chips.appendChild(c)
+  })
 }
 
+// ── ALERT PREVIEW ─────────────────────────────────
 function updateAlertPreview() {
-  const area = document.getElementById('lfAddress')?.value || 'your area';
-  const radius = document.getElementById('alertRadius')?.value || '2';
-  const name = document.getElementById('petName')?.value;
-  const species = document.getElementById('petSpecies')?.value;
-  const speciesMap = {dog:'🐕 Dog',cat:'🐈 Cat',rabbit:'🐰 Rabbit',bird:'🐦 Bird',hamster:'🐹 Hamster',other:'🐾 Pet'};
-  const breed = document.getElementById('petBreed')?.value;
-  const petDesc = [breed, speciesMap[species]].filter(Boolean).join(' ') || 'Pet';
-  document.getElementById('notifMsg').innerHTML = `Lost ${petDesc}${name?' named <strong>'+name+'</strong>':''} near <strong>${area||'your area'}</strong>. Last seen just now. Tap to help reunite them!`;
-  document.getElementById('notifArea').textContent = area || 'your area';
-  document.getElementById('notifRadius').textContent = radius + ' km';
+  const area = document.getElementById('lfAddress')?.value || 'your area'
+  const radius = document.getElementById('alertRadius')?.value || '2'
+  const name = document.getElementById('petName')?.value
+  const species = document.getElementById('petSpecies')?.value
+  const speciesMap = {dog:'🐕 Dog',cat:'🐈 Cat',rabbit:'🐰 Rabbit',bird:'🐦 Bird',hamster:'🐹 Hamster',other:'🐾 Pet'}
+  const breed = document.getElementById('petBreed')?.value
+  const petDesc = [breed, speciesMap[species]].filter(Boolean).join(' ') || 'Pet'
+  document.getElementById('notifMsg').innerHTML = `Lost ${petDesc}${name?' named <strong>'+name+'</strong>':''} near <strong>${area||'your area'}</strong>. Last seen just now. Tap to help reunite them!`
+  document.getElementById('notifArea').textContent = area || 'your area'
+  document.getElementById('notifRadius').textContent = radius + ' km'
 }
-document.getElementById('petName')?.addEventListener('input', updateAlertPreview);
-document.getElementById('petSpecies')?.addEventListener('change', updateAlertPreview);
-document.getElementById('petBreed')?.addEventListener('input', updateAlertPreview);
+document.getElementById('petName')?.addEventListener('input', updateAlertPreview)
+document.getElementById('petSpecies')?.addEventListener('change', updateAlertPreview)
+document.getElementById('petBreed')?.addEventListener('input', updateAlertPreview)
 
-const SUPABASE_URL = 'https://xdgwcxbzvexswcrovjxw.supabase.co'
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhkZ3djeGJ6dmV4c3djcm92anh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDQzNDMsImV4cCI6MjA4OTcyMDM0M30.dLMAvORcsCujcDnEq2qek4ZwaHvcENCC-5A1aliUp0k'
-
+// ── SUBMIT REPORT → SUPABASE ──────────────────────
 async function submitReport(type) {
   if (type === 'cruelty') {
-    const addr = document.getElementById('address').value
-    const desc = document.getElementById('incidentDesc').value
+    const addr     = document.getElementById('address').value.trim()
+    const desc     = document.getElementById('incidentDesc').value.trim()
     const severity = document.querySelector('input[name="severity"]:checked')?.value
     const crueltyType = document.getElementById('crueltyType').value
-    const animalCondition = document.querySelector('input[name="animalStatus"]:checked')?.value
+    const animalCondition = document.querySelector('input[name="animalStatus"]:checked')?.value || 'unknown'
 
-    if (!addr || !desc) { showToast('⚠️ Please fill required fields', 'error'); return }
-    if (!severity) { showToast('⚠️ Please select a severity level', 'error'); return }
+    // Validation
+    if (!addr)        { showToast('⚠️ Please enter the incident address', 'error'); return }
+    if (!desc)        { showToast('⚠️ Please describe the incident', 'error'); return }
+    if (!severity)    { showToast('⚠️ Please select a severity level', 'error'); return }
     if (!crueltyType) { showToast('⚠️ Please select a cruelty type', 'error'); return }
+
+    const btn = document.getElementById('submitCrueltyBtn')
+    btn.disabled = true
+    btn.textContent = '⏳ Submitting…'
+
+    const payload = {
+      severity,
+      cruelty_type:     crueltyType,
+      address:          addr,
+      incident_date:    document.getElementById('incidentDate').value || null,
+      incident_time:    document.getElementById('incidentTime').value || null,
+      description:      desc,
+      animal_condition: animalCondition,
+      suspect_desc:     document.getElementById('suspectDesc').value.trim() || null,
+      other_details:    document.getElementById('otherDetails').value.trim() || null,
+      reporter_contact: document.getElementById('reporterContact').value.trim() || null,
+      case_status:      'open'
+    }
 
     try {
       const res = await fetch(`${SUPABASE_URL}/rest/v1/reports`, {
@@ -1003,50 +1068,69 @@ async function submitReport(type) {
           'Content-Type': 'application/json',
           'apikey': SUPABASE_KEY,
           'Authorization': `Bearer ${SUPABASE_KEY}`,
-          'Prefer': 'return=minimal'
+          'Prefer': 'return=representation'   // ask Supabase to return the new row
         },
-        body: JSON.stringify({
-          severity,
-          cruelty_type: crueltyType,
-          address: addr,
-          description: desc,
-          animal_condition: animalCondition || 'unknown',
-          case_status: 'open',
-          timestamp: new Date().toISOString()
-        })
+        body: JSON.stringify(payload)
       })
 
       if (res.ok) {
-        showToast('🚨 Report submitted to SPCA! Officers alerted.', 'success')
+        const rows = await res.json()
+        const newId = rows?.[0]?.id || '—'
+        // Show success screen with reference number
+        document.getElementById('successRef').textContent = `#SPC-${newId}`
+        document.getElementById('successScreen').classList.add('show')
       } else {
-        const err = await res.text()
-        console.error('Supabase error:', err)
-        showToast('⚠️ Submission failed. Try again.', 'error')
+        const errText = await res.text()
+        console.error('Supabase error:', errText)
+        showToast('⚠️ Submission failed. Check console for details.', 'error')
+        btn.disabled = false
+        btn.textContent = '🚨 Submit Cruelty Report'
       }
     } catch (err) {
       console.error('Network error:', err)
-      showToast('⚠️ Network error. Try again.', 'error')
+      showToast('⚠️ Network error. Please try again.', 'error')
+      btn.disabled = false
+      btn.textContent = '🚨 Submit Cruelty Report'
     }
 
   } else {
-    const name = document.getElementById('petName').value
-    const addr = document.getElementById('lfAddress').value
-    if (!name || !addr) { showToast('⚠️ Please fill required fields', 'error'); return }
+    // Lost & Found — basic validation only (no Supabase table for L&F yet)
+    const name = document.getElementById('petName').value.trim()
+    const addr = document.getElementById('lfAddress').value.trim()
+    if (!name) { showToast('⚠️ Please enter your pet\'s name', 'error'); return }
+    if (!addr) { showToast('⚠️ Please enter the last seen location', 'error'); return }
     showToast('🐾 Report submitted! Nearby users notified.', 'success')
   }
 }
 
-function showToast(msg, type='success') {
-  const toast = document.getElementById('toast');
-  const icon = toast.querySelector('.t-icon');
-  document.getElementById('toastMsg').textContent = msg;
-  toast.className = 'toast ' + type;
-  icon.textContent = type==='success' ? '✓' : '!';
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 3500);
+// ── RESET FORM ────────────────────────────────────
+function resetForm() {
+  document.getElementById('successScreen').classList.remove('show')
+  document.getElementById('submitCrueltyBtn').disabled = false
+  document.getElementById('submitCrueltyBtn').textContent = '🚨 Submit Cruelty Report'
+  // Clear fields
+  ;['address','incidentDate','incidentTime','incidentDesc','animalConditionDetails','suspectDesc','otherDetails','reporterContact','postalCode'].forEach(id => {
+    const el = document.getElementById(id)
+    if (el) el.value = ''
+  })
+  document.querySelectorAll('input[name="severity"], input[name="animalStatus"]').forEach(r => r.checked = false)
+  document.getElementById('crueltyType').value = ''
+  document.getElementById('pillWrap').querySelectorAll('.pill').forEach(p => p.remove())
+  removeMedia()
+  document.getElementById('descCount').textContent = '0 / 500'
+  window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
-document.addEventListener('DOMContentLoaded', () => {});
+// ── TOAST ─────────────────────────────────────────
+function showToast(msg, type='success') {
+  const toast = document.getElementById('toast')
+  const icon = toast.querySelector('.t-icon')
+  document.getElementById('toastMsg').textContent = msg
+  toast.className = 'toast ' + type
+  icon.textContent = type==='success' ? '✓' : '!'
+  toast.classList.add('show')
+  setTimeout(() => toast.classList.remove('show'), 3500)
+}
 </script>
 </body>
 </html>

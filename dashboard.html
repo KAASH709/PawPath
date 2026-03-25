@@ -236,6 +236,30 @@ body::before {
 .btn-login:hover { opacity: .9; }
 .login-hint { font-size: 11px; color: var(--muted); margin-top: 12px; }
 .app-wrap { max-width: 430px; margin: 0 auto; min-height: 100vh; position: relative; }
+
+/* ── MODAL STYLES ── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px); z-index: 300;
+  display: none; align-items: flex-end; justify-content: center;
+}
+.modal-overlay.show { display: flex; animation: fadeIn 0.3s ease; }
+.modal-content {
+  background: var(--card); width: 100%; max-width: 430px;
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 24px 20px 40px; position: relative;
+  max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
+}
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.modal-close { background: var(--card2); border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.detail-section { margin-bottom: 20px; }
+.detail-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.detail-value { font-size: 14px; color: var(--text); line-height: 1.5; }
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.case-item { cursor: pointer; transition: background 0.2s; }
+.case-item:hover { background: var(--card2); }
 </style>
 </head>
 <body>
@@ -385,6 +409,68 @@ body::before {
     </div>
   </div>
 
+  <!-- CASE DETAIL MODAL -->
+  <div class="modal-overlay" id="caseModal" onclick="if(event.target===this)closeModal()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <div id="modalId" style="font-size:11px; color:var(--muted); margin-bottom:2px">#SPC-LOADING</div>
+          <h2 id="modalTitle" style="font-family:'DM Sans',sans-serif; font-size:18px; font-weight:800">Case Details</h2>
+        </div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+
+      <div class="detail-grid">
+        <div class="detail-section">
+          <div class="detail-label">Severity</div>
+          <div id="modalSeverity">—</div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">Status</div>
+          <div id="modalStatus">—</div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-label">Location</div>
+        <div id="modalAddress" class="detail-value">—</div>
+      </div>
+
+      <div class="detail-grid">
+        <div class="detail-section">
+          <div class="detail-label">Incident Date</div>
+          <div id="modalDate" class="detail-value">—</div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">Incident Time</div>
+          <div id="modalTime" class="detail-value">—</div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-label">Description</div>
+        <div id="modalDesc" class="detail-value" style="white-space:pre-wrap">—</div>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-label">Animal Condition</div>
+        <div id="modalCondition" class="detail-value">—</div>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-label">Suspect Information</div>
+        <div id="modalSuspect" class="detail-value">—</div>
+      </div>
+
+      <div class="detail-section">
+        <div class="detail-label">Reporter Contact</div>
+        <div id="modalContact" class="detail-value">—</div>
+      </div>
+
+      <button class="btn-generate" onclick="closeModal()" style="margin-top:10px; background:var(--card2); color:var(--text); box-shadow:none">Close Details</button>
+    </div>
+  </div>
+
   <div class="spacer-lg"></div>
 </div>
 
@@ -415,6 +501,9 @@ function init() {
   loadRealData()
 }
 
+// ── GLOBAL STATE ───────────────────────────────────
+let allReports = []
+
 // ── LOAD REAL DATA FROM SUPABASE ──────────────────
 async function loadRealData() {
   try {
@@ -424,13 +513,16 @@ async function loadRealData() {
         'Authorization': `Bearer ${SUPABASE_KEY}`
       }
     })
-    const reports = await res.json()
+    const raw = await res.json()
+    allReports = Array.isArray(raw) ? raw : []
 
-    if (!Array.isArray(reports)) {
-      console.error('Supabase error:', reports)
-      document.getElementById('caseList').innerHTML = '<div class="empty-state">⚠️ Could not connect to database. Check API key.</div>'
+    if (!Array.isArray(allReports)) {
+      console.error('Supabase error:', allReports)
+      document.getElementById('caseListOpen').innerHTML = '<div class="empty-state">⚠️ Could not connect to database. Check API key.</div>'
       return
     }
+
+    const reports = allReports
 
     // stat counts
     const total = reports.length
@@ -510,19 +602,52 @@ function renderRealCases(reports, containerId) {
     return
   }
   list.innerHTML = reports.map(r => `
-    <div class="case-item" id="case-${r.id}">
+    <div class="case-item" id="case-${r.id}" onclick="showCaseDetails('${r.id}')">
       <span class="severity-badge ${r.severity || 'mild'}">${r.severity || 'mild'}</span>
       <div class="case-info">
         <div class="case-title">${r.cruelty_type || 'Unknown'} · ${r.address || 'No address'}</div>
         <div class="case-meta">${new Date(r.created_at).toLocaleDateString('en-SG')} · #SPC-${r.id}</div>
       </div>
-      <select class="status-select" onchange="updateCaseStatus('${r.id}', this.value)">
+      <select class="status-select" onchange="event.stopPropagation(); updateCaseStatus('${r.id}', this.value)">
         <option value="open"          ${r.case_status === 'open'          ? 'selected' : ''}>Open</option>
         <option value="investigating" ${r.case_status === 'investigating' ? 'selected' : ''}>Investigating</option>
         <option value="resolved"      ${r.case_status === 'resolved'      ? 'selected' : ''}>Resolved</option>
       </select>
     </div>
   `).join('')
+}
+
+// ── MODAL LOGIC ───────────────────────────────────
+function showCaseDetails(id) {
+  const r = allReports.find(x => x.id === id)
+  if (!r) return
+
+  document.getElementById('modalId').textContent = `#SPC-${r.id}`
+  document.getElementById('modalTitle').textContent = (r.cruelty_type || 'Unknown Incident').toUpperCase()
+  document.getElementById('modalSeverity').innerHTML = `<span class="severity-badge ${r.severity || 'mild'}">${r.severity || 'mild'}</span>`
+  document.getElementById('modalStatus').textContent = (r.case_status || 'open').toUpperCase()
+  document.getElementById('modalAddress').textContent = r.address || 'No address specified'
+  document.getElementById('modalDate').textContent = r.incident_date || 'Unknown'
+  document.getElementById('modalTime').textContent = r.incident_time || 'Unknown'
+  document.getElementById('modalDesc').textContent = r.incident_desc || 'No description provided.'
+  
+  // condition
+  const cond = r.animal_condition_details || ''
+  const status = r.animal_status ? `Status: ${r.animal_status}` : ''
+  document.getElementById('modalCondition').textContent = `${status}${status && cond ? ' — ' : ''}${cond}` || 'No condition details.'
+
+  // suspect
+  const suspect = r.suspect_desc || ''
+  const tags = r.tags ? `Tags: ${r.tags}` : ''
+  document.getElementById('modalSuspect').textContent = `${suspect}${suspect && tags ? '\n' : ''}${tags}` || 'No suspect information.'
+
+  document.getElementById('modalContact').textContent = r.reporter_contact || 'Anonymous/Not provided'
+
+  document.getElementById('caseModal').classList.add('show')
+}
+
+function closeModal() {
+  document.getElementById('caseModal').classList.remove('show')
 }
 
 // ── UPDATE CASE STATUS ────────────────────────────

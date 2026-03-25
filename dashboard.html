@@ -608,7 +608,7 @@ function renderRealCases(reports, containerId) {
         <div class="case-title">${r.cruelty_type || 'Unknown'} · ${r.address || 'No address'}</div>
         <div class="case-meta">${new Date(r.created_at).toLocaleDateString('en-SG')} · #SPC-${r.id}</div>
       </div>
-      <select class="status-select" onchange="event.stopPropagation(); updateCaseStatus('${r.id}', this.value)">
+      <select class="status-select" onclick="event.stopPropagation()" onchange="event.stopPropagation(); updateCaseStatus('${r.id}', this.value)">
         <option value="open"          ${r.case_status === 'open'          ? 'selected' : ''}>Open</option>
         <option value="investigating" ${r.case_status === 'investigating' ? 'selected' : ''}>Investigating</option>
         <option value="resolved"      ${r.case_status === 'resolved'      ? 'selected' : ''}>Resolved</option>

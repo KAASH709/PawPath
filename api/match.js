@@ -1,7 +1,6 @@
 const { OpenAI } = require('openai');
 const { createClient } = require('@supabase/supabase-js');
 
-// --- Main Handler ---
 module.exports = async function handler(req, res) {
     // 1. Setup CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -11,50 +10,31 @@ module.exports = async function handler(req, res) {
     if (req.method === 'OPTIONS') return res.status(200).end();
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-    console.log('--- START DIAGNOSTIC MATCH ---');
-    console.log('Node Version:', process.version);
-    
     try {
         const { prompt } = req.body || {};
+        if (!prompt) return res.status(400).json({ error: 'Missing prompt' });
+
+        // Clean env vars (handles quotes/spaces from Vercel dash)
         const SUPABASE_URL = (process.env.SUPABASE_URL || '').trim().replace(/^["']|["']$/g, '');
         const SUPABASE_KEY = (process.env.SUPABASE_ANON_KEY || '').trim().replace(/^["']|["']$/g, '');
         const OPENAI_KEY = (process.env.OPENAI_API_KEY || '').trim().replace(/^["']|["']$/g, '');
-        
-        console.log('Prompt received:', prompt ? prompt.substring(0, 50) + '...' : 'NONE');
 
-        // 2. Check Environment
-        const envStatus = {
-            has_openai_key: !!OPENAI_KEY,
-            openai_key_prefix: OPENAI_KEY ? OPENAI_KEY.substring(0, 7) : 'N/A',
-            has_supabase_url: !!SUPABASE_URL,
-            has_supabase_key: !!SUPABASE_KEY,
-            supabase_url_preview: SUPABASE_URL ? SUPABASE_URL.substring(0, 15) + '...' : 'N/A',
-            base_url: process.env.OPENAI_BASE_URL || 'DEFAULT'
-        };
-        console.log('Environment Status:', JSON.stringify(envStatus));
+        if (!OPENAI_KEY || !SUPABASE_URL) {
+            return res.status(500).json({ error: 'Server configuration missing' });
+        }
 
-        if (!OPENAI_KEY) throw new Error('MISSING_OPENAI_KEY');
-        if (!SUPABASE_URL) throw new Error('MISSING_SUPABASE_URL');
-
-        // 3. Initialize Clients
-        console.log('Initializing clients with cleaned variables...');
+        // 2. Initialize Clients
         const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
         const openai = new OpenAI({
             apiKey: OPENAI_KEY,
             baseURL: process.env.OPENAI_BASE_URL || 'https://api.apiyi.com/v1'
         });
 
-        // 4. Fetch Pets
-        console.log('Fetching pets from Supabase...');
+        // 3. Fetch Pets
         const { data: dbPets, error: dbError } = await supabase.from('pets').select('*');
-        if (dbError) {
-            console.error('Supabase Error:', dbError);
-            throw new Error(`SUPABASE_FETCH_FAILED: ${dbError.message}`);
-        }
-        console.log(`Fetched ${dbPets?.length || 0} pets.`);
+        if (dbError) throw new Error(`Database fetch failed: ${dbError.message}`);
 
-        // 5. OpenAI Extraction
-        console.log('Calling OpenAI GPT-4o-mini for extraction...');
+        // 4. OpenAI Processing
         const extractRes = await openai.chat.completions.create({
             model: 'gpt-4o-mini',
             temperature: 0,
@@ -65,23 +45,19 @@ module.exports = async function handler(req, res) {
             ]
         });
         const prefs = JSON.parse(extractRes.choices[0].message.content);
-        console.log('Preferences extracted:', JSON.stringify(prefs));
 
-        // 6. Scoring
-        console.log('Calling OpenAI GPT-4o-mini for scoring...');
         const scoreRes = await openai.chat.completions.create({
             model: 'gpt-4o-mini',
             temperature: 0.3,
             response_format: { type: 'json_object' },
             messages: [
                 { role: 'system', content: 'Score matches (0-100). Return JSON { results: [{ id, compatibility_score, reason }] }' },
-                { role: 'user', content: JSON.stringify({ prompt, candidates: dbPets.slice(0, 10) }) }
+                { role: 'user', content: JSON.stringify({ prompt, candidates: dbPets.slice(0, 15) }) }
             ]
         });
         const scored = JSON.parse(scoreRes.choices[0].message.content);
-        console.log('Scoring complete.');
 
-        // 7. Final Response
+        // 5. Final Response
         const results = (scored.results || []).map(r => {
             const pet = dbPets.find(p => p.id === r.id);
             if (!pet) return null;
@@ -89,28 +65,17 @@ module.exports = async function handler(req, res) {
                 id: pet.id,
                 name: pet.name,
                 breed: pet.breed,
+                age: pet.age,
+                img: pet.img,
                 compatibility_score: r.compatibility_score,
                 reason: r.reason
             };
-        }).filter(Boolean);
+        }).filter(Boolean).slice(0, 5);
 
-        console.log('--- END DIAGNOSTIC MATCH (SUCCESS) ---');
-        return res.status(200).json({ results, preferences: prefs, debug: envStatus });
+        return res.status(200).json({ results, preferences: prefs });
 
     } catch (err) {
-        console.error('--- DIAGNOSTIC ERROR ---');
-        console.error('Error Name:', err.name);
-        console.error('Error Message:', err.message);
-        console.error('Stack:', err.stack);
-        
-        return res.status(500).json({ 
-            error: 'DIAGNOSTIC_FAILURE',
-            message: err.message,
-            stack: err.stack,
-            env_hint: {
-                has_openai: !!process.env.OPENAI_API_KEY,
-                node_version: process.version
-            }
-        });
+        console.error('AI match error:', err);
+        return res.status(500).json({ error: 'Failed to process match', message: err.message });
     }
 };

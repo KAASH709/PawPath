@@ -1,157 +1,111 @@
-const OpenAI = require('openai');
+const { OpenAI } = require('openai');
 const { createClient } = require('@supabase/supabase-js');
-
-// --- Supabase Config ---
-const supabase = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY
-);
-
-// --- Helpers ---
-function setCorsHeaders(res) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-}
-
-// Deterministic hard-filter using extracted preferences
-function filterPets(pets, prefs) {
-    return pets.filter(pet => {
-        // Apartment: only exclude if user needs apartment-friendly AND pet is not
-        if (prefs.apartment_friendly === true && !pet.apartment_friendly) return false;
-        // Kids: only exclude if user has kids AND pet is not good with kids
-        if (prefs.good_with_kids === true && !pet.good_with_kids) return false;
-        return true;
-    });
-}
 
 // --- Main Handler ---
 module.exports = async function handler(req, res) {
-    setCorsHeaders(res);
+    // 1. Setup CORS
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-    // Handle CORS preflight
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
-    }
+    if (req.method === 'OPTIONS') return res.status(200).end();
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' });
-    }
-
-    const { prompt } = req.body || {};
-    if (!prompt || typeof prompt !== 'string' || prompt.trim().length < 5) {
-        return res.status(400).json({ error: 'Please provide a prompt describing your ideal pet.' });
-    }
-
-    if (!process.env.OPENAI_API_KEY) {
-        return res.status(500).json({ error: 'OpenAI API key not configured.' });
-    }
-
-    const openai = new OpenAI({
-        apiKey: process.env.OPENAI_API_KEY,
-        baseURL: process.env.OPENAI_BASE_URL || 'https://api.apiyi.com/v1'
-    });
-
+    console.log('--- START DIAGNOSTIC MATCH ---');
+    console.log('Node Version:', process.version);
+    
     try {
-        // 1. Fetch ALL pets from Supabase first
-        const { data: dbPets, error: dbError } = await supabase
-            .from('pets')
-            .select('*');
+        const { prompt } = req.body || {};
+        console.log('Prompt received:', prompt ? prompt.substring(0, 50) + '...' : 'NONE');
 
+        // 2. Check Environment
+        const envStatus = {
+            has_openai_key: !!process.env.OPENAI_API_KEY,
+            openai_key_prefix: process.env.OPENAI_API_KEY ? process.env.OPENAI_API_KEY.substring(0, 7) : 'N/A',
+            has_supabase_url: !!process.env.SUPABASE_URL,
+            has_supabase_key: !!process.env.SUPABASE_ANON_KEY,
+            base_url: process.env.OPENAI_BASE_URL || 'DEFAULT'
+        };
+        console.log('Environment Status:', JSON.stringify(envStatus));
+
+        if (!process.env.OPENAI_API_KEY) throw new Error('MISSING_OPENAI_KEY');
+        if (!process.env.SUPABASE_URL) throw new Error('MISSING_SUPABASE_URL');
+
+        // 3. Initialize Clients
+        console.log('Initializing clients...');
+        const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+        const openai = new OpenAI({
+            apiKey: process.env.OPENAI_API_KEY,
+            baseURL: process.env.OPENAI_BASE_URL || 'https://api.apiyi.com/v1'
+        });
+
+        // 4. Fetch Pets
+        console.log('Fetching pets from Supabase...');
+        const { data: dbPets, error: dbError } = await supabase.from('pets').select('*');
         if (dbError) {
-            console.error('Supabase fetch error:', dbError);
-            return res.status(500).json({ error: 'Failed to fetch pet data from database.' });
+            console.error('Supabase Error:', dbError);
+            throw new Error(`SUPABASE_FETCH_FAILED: ${dbError.message}`);
         }
+        console.log(`Fetched ${dbPets?.length || 0} pets.`);
 
-        // Map database fields to the format expected by the existing matching logic
-        const PETS = dbPets.map(p => ({
-            id: p.id,
-            name: p.name,
-            species: p.species,
-            breed: p.breed,
-            size: p.size,
-            age: p.age,
-            img: p.img,
-            energy: p.energy,
-            apartment_friendly: p.apartment_friendly,
-            good_with_kids: p.good_with_kids,
-            shedding: p.shedding,
-            alone_tolerance: p.alone_tolerance,
-            description: p.description
-        }));
-
-        // 2. Extract structured preferences
+        // 5. OpenAI Extraction
+        console.log('Calling OpenAI GPT-4o-mini for extraction...');
         const extractRes = await openai.chat.completions.create({
             model: 'gpt-4o-mini',
             temperature: 0,
             response_format: { type: 'json_object' },
             messages: [
-                {
-                    role: 'system',
-                    content: `You are a pet adoption assistant. Extract structured preferences from the user's description.
-Return ONLY valid JSON: { "species", "size", "energy", "apartment_friendly", "good_with_kids", "shedding", "alone_tolerance" }`
-                },
+                { role: 'system', content: 'Extract pet preferences as JSON: { species, size, energy, apartment_friendly, good_with_kids, shedding, alone_tolerance }' },
                 { role: 'user', content: prompt }
             ]
         });
+        const prefs = JSON.parse(extractRes.choices[0].message.content);
+        console.log('Preferences extracted:', JSON.stringify(prefs));
 
-        let prefs;
-        try {
-            prefs = JSON.parse(extractRes.choices[0].message.content);
-        } catch {
-            prefs = {};
-        }
-
-        // 3. Deterministic Filter
-        let candidates = filterPets(PETS, prefs);
-        if (candidates.length === 0) candidates = PETS;
-
-        // 4. Compatibility Scoring
+        // 6. Scoring
+        console.log('Calling OpenAI GPT-4o-mini for scoring...');
         const scoreRes = await openai.chat.completions.create({
             model: 'gpt-4o-mini',
             temperature: 0.3,
             response_format: { type: 'json_object' },
             messages: [
-                {
-                    role: 'system',
-                    content: `Score each pet's compatibility (0-100) based on user prompt and candidates. Return JSON results array.`
-                },
-                {
-                    role: 'user',
-                    content: JSON.stringify({ prompt, prefs, candidates })
-                }
+                { role: 'system', content: 'Score matches (0-100). Return JSON { results: [{ id, compatibility_score, reason }] }' },
+                { role: 'user', content: JSON.stringify({ prompt, candidates: dbPets.slice(0, 10) }) }
             ]
         });
+        const scored = JSON.parse(scoreRes.choices[0].message.content);
+        console.log('Scoring complete.');
 
-        let scored;
-        try {
-            scored = JSON.parse(scoreRes.choices[0].message.content);
-        } catch {
-            scored = { results: [] };
-        }
+        // 7. Final Response
+        const results = (scored.results || []).map(r => {
+            const pet = dbPets.find(p => p.id === r.id);
+            if (!pet) return null;
+            return {
+                id: pet.id,
+                name: pet.name,
+                breed: pet.breed,
+                compatibility_score: r.compatibility_score,
+                reason: r.reason
+            };
+        }).filter(Boolean);
 
-        // 5. Attach full pet data to results
-        const results = (scored.results || [])
-            .map(r => {
-                const pet = PETS.find(p => p.id === r.pet_id || p.id === r.id);
-                if (!pet) return null;
-                return {
-                    id: pet.id,
-                    name: pet.name,
-                    breed: pet.breed,
-                    age: pet.age,
-                    img: pet.img,
-                    compatibility_score: Math.round(r.compatibility_score || r.score || 0),
-                    reason: r.reason
-                };
-            })
-            .filter(Boolean)
-            .slice(0, 5);
-
-        return res.status(200).json({ results, preferences: prefs });
+        console.log('--- END DIAGNOSTIC MATCH (SUCCESS) ---');
+        return res.status(200).json({ results, preferences: prefs, debug: envStatus });
 
     } catch (err) {
-        console.error('AI match error:', err);
-        return res.status(500).json({ error: err.message });
+        console.error('--- DIAGNOSTIC ERROR ---');
+        console.error('Error Name:', err.name);
+        console.error('Error Message:', err.message);
+        console.error('Stack:', err.stack);
+        
+        return res.status(500).json({ 
+            error: 'DIAGNOSTIC_FAILURE',
+            message: err.message,
+            stack: err.stack,
+            env_hint: {
+                has_openai: !!process.env.OPENAI_API_KEY,
+                node_version: process.version
+            }
+        });
     }
 };

@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PawPath – SPCA Staff Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
   --red: #E8401A;
@@ -420,8 +421,26 @@ function doLogin() {
   }
 }
 
+// ── SUPABASE CLIENT ─────────────────────────────
+let supabase = null;
+function initSupabase() {
+  if (typeof supabase === 'undefined' || !supabase) {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    
+    // Subscribe to Realtime changes
+    supabase
+      .channel('public:reports')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'reports' }, payload => {
+        console.log('Realtime change received:', payload);
+        loadRealData();
+      })
+      .subscribe();
+  }
+}
+
 // ── INIT ──────────────────────────────────────────
 function init() {
+  initSupabase()
   const now = new Date()
   document.getElementById('heroDate').textContent =
     now.toLocaleDateString('en-SG', { weekday:'long', day:'numeric', month:'long', year:'numeric' })

@@ -656,18 +656,42 @@ function openResource(type) {
   showToast(labels[type] || 'Opening…');
 }
 
-function sign_out() {
+async function sign_out() {
+  const oldId = USER_ID;
+  
+  // 1. Clear Supabase Data (Clean Slate)
+  if (window.supabaseClient) {
+    // Delete profile
+    await window.supabaseClient
+      .from('user_profiles')
+      .delete()
+      .eq('id', oldId);
+      
+    // Delete saved pets
+    await window.supabaseClient
+      .from('saved_pets')
+      .delete()
+      .eq('user_id', oldId);
+  }
+
+  // 2. Clear Local Session
   localStorage.removeItem('pawpath_profile');
   localStorage.removeItem('pawpath_hearts');
+  localStorage.removeItem('pawpath_user_id'); // Clear ID for true clean slate
+  
   userProfile = null;
   heartedPets = new Set();
+  
+  // Generate a brand new ID for the next session
+  USER_ID = crypto.randomUUID();
+  localStorage.setItem('pawpath_user_id', USER_ID);
 
-  // Refresh UI
+  // 3. Refresh UI
   renderPetGrid('all');
   updateRecommendations();
-  renderSavedPets(); // Also update saved pets on sign out
+  renderSavedPets(); 
 
-  showToast('Signed out! Session cleared.');
+  showToast('Signed out! All testing data has been wiped.');
   goScreen('screen-home');
 }
 

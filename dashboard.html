@@ -510,17 +510,54 @@ function renderBreakdown(reports) {
   document.getElementById('breakdownList').innerHTML = html || 'No reports';
 }
 
+async function updateStatus(id, newStatus) {
+  console.log(`Updating case ${id} to ${newStatus}`);
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/reports?id=eq.${id}`, {
+      method: 'PATCH',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ case_status: newStatus })
+    });
+    
+    if (res.ok) {
+      console.log('Status updated successfully');
+      loadRealData();
+    } else {
+      const err = await res.json();
+      console.error('Update failed:', err);
+    }
+  } catch (err) {
+    console.error('Error updating status:', err);
+  }
+}
+
 function renderRealCases(reports, containerId) {
   const list = document.getElementById(containerId);
   if (!list) return;
-  if (reports.length === 0) { list.innerHTML = 'No cases here.'; return; }
-  list.innerHTML = reports.map(r => `
-    <div class="case-item" onclick="showCaseDetails('${r.id}')">
-      <span class="severity-badge ${r.severity || 'mild'}">${r.severity || 'mild'}</span>
-      <div class="case-info">
-        <div class="case-title">${r.type || r.cruelty_type || 'Unknown'} · ${r.address || 'No address'}</div>
+  if (reports.length === 0) { list.innerHTML = '<div class="empty-state">No cases here.</div>'; return; }
+  
+  list.innerHTML = reports.map(r => {
+    const status = r.case_status || 'open';
+    return `
+    <div class="case-item">
+      <div style="flex:1; display:flex; align-items:center; gap:12px; min-width:0;" onclick="showCaseDetails('${r.id}')">
+        <span class="severity-badge ${r.severity || 'mild'}">${r.severity || 'mild'}</span>
+        <div class="case-info">
+          <div class="case-title">${r.type || r.cruelty_type || 'Unknown'} · ${r.address || 'No address'}</div>
+        </div>
       </div>
-    </div>`).join('');
+      <select class="status-select" onchange="updateStatus('${r.id}', this.value)">
+        <option value="open" ${status === 'open' ? 'selected' : ''}>Open</option>
+        <option value="investigating" ${status === 'investigating' ? 'selected' : ''}>Investigating</option>
+        <option value="resolved" ${status === 'resolved' ? 'selected' : ''}>Resolved</option>
+      </select>
+    </div>`;
+  }).join('');
 }
 
 function showCaseDetails(id) {

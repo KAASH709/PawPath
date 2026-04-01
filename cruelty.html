@@ -769,6 +769,7 @@
 // ── SUPABASE CONFIG ───────────────────────────────
 const SUPABASE_URL = 'https://xdgwcxbzvexswcrovjxw.supabase.co'
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhkZ3djeGJ6dmV4c3djcm92anh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNDQzNDMsImV4cCI6MjA4OTcyMDM0M30.dLMAvORcsCujcDnEq2qek4ZwaHvcENCC-5A1aliUp0k'
+let selectedMediaFile = null
 
 // ── TAB SWITCHING ─────────────────────────────────
 function switchTab(tab) {
@@ -798,6 +799,7 @@ function handleFileSelect(e) {
   if (file) processMediaFile(file)
 }
 function processMediaFile(file) {
+  selectedMediaFile = file
   const zone = document.getElementById('uploadZone')
   zone.classList.add('has-file')
   const reader = new FileReader()
@@ -814,6 +816,7 @@ function processMediaFile(file) {
   reader.readAsDataURL(file)
 }
 function removeMedia() {
+  selectedMediaFile = null
   document.getElementById('mediaPreview').style.display = 'none'
   document.getElementById('mediaInput').value = ''
   document.getElementById('uploadZone').classList.remove('has-file')
@@ -990,6 +993,31 @@ async function submitReport(type) {
     btn.disabled = true
     btn.textContent = '⏳ Submitting…'
 
+    // Upload image to Supabase Storage if one was selected
+    let imageUrl = null
+    if (selectedMediaFile) {
+      try {
+        const ext = selectedMediaFile.name.split('.').pop()
+        const fileName = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${ext}`
+        const uploadRes = await fetch(`${SUPABASE_URL}/storage/v1/object/report-images/${fileName}`, {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`,
+            'Content-Type': selectedMediaFile.type
+          },
+          body: selectedMediaFile
+        })
+        if (uploadRes.ok) {
+          imageUrl = `${SUPABASE_URL}/storage/v1/object/public/report-images/${fileName}`
+        } else {
+          console.warn('Image upload failed:', await uploadRes.text())
+        }
+      } catch (uploadErr) {
+        console.warn('Image upload error:', uploadErr)
+      }
+    }
+
     const payload = {
       severity,
       cruelty_type:     crueltyType,
@@ -1001,7 +1029,8 @@ async function submitReport(type) {
       suspect_desc:     document.getElementById('suspectDesc').value.trim() || null,
       other_details:    document.getElementById('otherDetails').value.trim() || null,
       reporter_contact: document.getElementById('reporterContact').value.trim() || null,
-      case_status:      'open'
+      case_status:      'open',
+      image_url:        imageUrl
     }
 
     try {
@@ -1011,7 +1040,7 @@ async function submitReport(type) {
           'Content-Type': 'application/json',
           'apikey': SUPABASE_KEY,
           'Authorization': `Bearer ${SUPABASE_KEY}`,
-          'Prefer': 'return=representation'   // ask Supabase to return the new row
+          'Prefer': 'return=representation'
         },
         body: JSON.stringify(payload)
       })
@@ -1060,6 +1089,7 @@ function resetForm() {
   document.getElementById('crueltyType').value = ''
   document.getElementById('pillWrap').querySelectorAll('.pill').forEach(p => p.remove())
   removeMedia()
+  selectedMediaFile = null
   document.getElementById('descCount').textContent = '0 / 500'
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
